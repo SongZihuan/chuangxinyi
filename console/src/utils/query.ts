@@ -1,0 +1,15 @@
+export function encodeSearchParams(obj) {
+	const params = [];
+
+	Object.keys(obj).forEach((key) => {
+		let value = obj[key];
+		// 如果值为undefined我们将其置空
+		if (typeof value === 'undefined') {
+			value = '';
+		}
+		// 对于需要编码的文本（比如说中文）我们要进行编码
+		params.push([key, encodeURIComponent(value)].join('='));
+	});
+
+	return params.join('&');
+}

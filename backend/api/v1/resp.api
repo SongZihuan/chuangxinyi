@@ -1,0 +1,1343 @@
+syntax = "v1"
+
+import "model.api"
+
+type Resp {
+    RequestsID string `json:"requestsID"`
+    Code string `json:"code"`
+    NumCode int64 `json:"_code"`
+    SubCode string `json:"subCode"`
+    SubNumCode int64 `json:"_subCode"`
+    Msg string `json:"msg"`
+    DebugMsg string `json:"debugMsg"`
+}
+
+// 空数据
+type EmptyData {}
+
+// 空响应体
+type RespEmpty {
+    Resp
+    Data EmptyData `json:"data"`
+}
+
+type PingData {
+    RealIP string `json:"realIP"`
+    Geo string `json:"geo"`
+    GeoCode string `json:"geoCode"`
+}
+
+type PingResp {
+    Resp
+    Data PingData `json:"data"`
+}
+
+type SuccessData {
+    Token string `json:"token"`// token值
+    SubToken string `json:"subToken"`
+    Type  string  `json:"type"` // token类型 （Login登录, Login2FA需要2FA验证, PhoneCheck, EmailCheck, User用户）
+    SubType string `json:"subType"`  // 二级token类型
+}
+
+type SuccessResp {
+    Resp
+    Data SuccessData `json:"data"`
+}
+
+type DefrayRespData {
+    Cny int64 `json:"cny"`
+}
+
+type DefrayResp {
+    Resp
+    Data DefrayRespData `json:"data"`
+}
+
+type CheckLoginTokenData {
+    IsLogin bool `json:"isLogin"`
+    User WebsiteUserEasy `json:"user"`
+    Data UserData `json:"data"`
+    Info UserInfoEsay `json:"info"`
+}
+
+type CheckLoginTokenResp {
+    Resp
+    Data CheckLoginTokenData `json:"data"`
+}
+
+type Check2FATokenData {
+    IsNeed2FA bool `json:"isNeed2FA"`
+}
+
+type Check2FATokenResp {
+    Resp
+    Data Check2FATokenData `json:"data"`
+}
+
+type CheckPhoneTokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckPhoneTokenResp {
+    Resp
+    Data CheckPhoneTokenData `json:"data"`
+}
+
+type CheckEmailTokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckEmailTokenResp {
+    Resp
+    Data CheckEmailTokenData `json:"data"`
+}
+
+type CheckIDCardTokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckIDCardTokenResp {
+    Resp
+    Data CheckIDCardTokenData `json:"data"`
+}
+
+type CheckCompanyTokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckCompanyTokenResp {
+    Resp
+    Data CheckCompanyTokenData `json:"data"`
+}
+
+type CheckFaceTokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckFaceTokenResp {
+    Resp
+    Data CheckFaceTokenData `json:"data"`
+}
+
+type CheckSecondFATokenData {
+    IsOK bool `json:"isOK"`
+}
+
+type CheckSecondFATokenResp {
+    Resp
+    Data CheckSecondFATokenData `json:"data"`
+}
+
+type RoleList {
+    Count int64 `json:"count"`
+    Role []Role `json:"role"`
+}
+
+type RoleListResp {
+    Resp
+    Data RoleList `json:"data"`
+}
+
+type MenuData {
+    Menu []RoleMenu `json:"menu"`
+}
+
+type MenuResp {
+    Resp
+    Data MenuData `json:"data"`
+}
+
+type ApplicationData {
+    Application []Application `json:"application"`
+}
+
+type ApplicationResp {
+    Resp
+    Data ApplicationData `json:"data"`
+}
+
+type UserEasyWithID {
+    NumberID int64 `json:"numberID"`
+    UserEasy
+}
+
+type GetUserPhoneData {
+    Phone string `json:"phone"`
+}
+
+type GetUserPhoneResp {
+    Resp
+    Data GetUserPhoneData `json:"data"`
+}
+
+type GetUserEmailData {
+    Email string `json:"email"`
+}
+
+type GetUserEmailResp {
+    Resp
+    Data GetUserEmailData `json:"data"`
+}
+
+type GetUserStatusData {
+    Status string `json:"status"`
+}
+
+type GetUserStatusResp {
+    Resp
+    Data GetUserStatusData `json:"data"`
+}
+
+type GetInfoData {
+    User UserEasy `json:"user"`
+    Info UserInfo `json:"info"`
+    Data UserData `json:"data"`
+    Balance UserBalance  `json:"balance"`
+    Title Title `json:"title"`
+    Address Address `json:"address"`
+    Role Role `json:"role"`
+}
+
+type GetInfoResp {
+    Resp
+    Data GetInfoData `json:"data"`
+}
+
+type AppIDData {
+    AppID string `json:"appID"`
+}
+
+type AppIDResp {
+    Resp
+    Data AppIDData `json:"data"`
+}
+
+type AFSData {
+    HAppKey string `json:"hAppKey"`  // 滑块AppKey
+    SAppKey string `json:"sAppKey"`  // 静默AppKey
+    HScene string `json:"hScene"`  // 滑块Scene
+    SScene string `json:"sScene"`  // 静默Scene
+}
+
+type AFSResp {
+    Resp
+    Data AFSData `json:"data"`
+}
+
+type SaltData {
+    Salt string `json:"salt"`
+}
+
+type SaltResp {
+    Resp
+    Data SaltData `json:"data"`
+}
+
+type GetWebsiteListData {
+    Website []Website `json:"website"`
+    Count int64 `json:"count"`
+}
+
+type GetWebsiteListResp {
+    Resp
+    Data GetWebsiteListData `json:"data"`
+}
+
+type GetTotpUrlData {
+    Url string `json:"url"`
+    Secret string `json:"secret"`
+}
+
+type GetTotpUrlResp {
+    Resp
+    Data GetTotpUrlData `json:"data"`
+}
+
+type GetAllTokenData {
+    Token []TokenIPGeo `json:"token"`
+}
+
+type GetAllTokenResp {
+    Resp
+    Data GetAllTokenData `json:"data"`
+}
+
+type AdminGetAllTokenData {
+    Token []AdminTokenIPGeo `json:"token"`
+}
+
+type AdminGetAllTokenResp {
+    Resp
+    Data AdminGetAllTokenData `json:"data"`
+}
+
+type AdminGetAllOauth2TokenData {
+    Token []AdminOauth2Record `json:"token"`
+}
+
+type AdminGetAllOauth2TokenResp {
+    Resp
+    Data AdminGetAllOauth2TokenData `json:"data"`
+}
+
+type AdminGetAllSonTokenData {
+    Token []AdminSonTokenIPGeo `json:"token"`
+}
+
+type AdminGetAllSonTokenResp {
+    Resp
+    Data AdminGetAllSonTokenData `json:"data"`
+}
+
+type AlipayData {
+    ID string `json:"id"`
+    Url string `json:"url"`
+    TimeExpire int64 `json:"timeExpire"`
+}
+
+type AlipayResp {
+    Resp
+    Data AlipayData `json:"data"`
+}
+
+type AlipayWapData {
+    ID string `json:"id"`
+    PayUrl string `json:"payUrl"`
+    TimeExpire int64 `json:"timeExpire"`
+}
+
+type AlipayWapResp {
+    Resp
+    Data AlipayWapData `json:"data"`
+}
+
+type WechatPayData {
+    ID string `json:"id"`
+    Url string `json:"url"`
+    TimeExpire int64 `json:"timeExpire"`
+}
+
+type WechatPayResp {
+    Resp
+    Data WechatPayData `json:"data"`
+}
+
+type WechatPayWapData {
+    ID string `json:"id"`
+    H5Url string `json:"h5Url"`
+    TimeExpire int64 `json:"timeExpire"`
+}
+
+type WechatPayWapResp {
+    Resp
+    Data WechatPayWapData `json:"data"`
+}
+
+type WechatPayJsAPIData {
+    ID string `json:"id"`
+    PrePayID string `json:"prePayID"`
+    AppId     string `json:"appId"`
+    TimeStamp string `json:"timeStamp"`
+    NonceStr  string `json:"nonceStr"`
+    Package   string `json:"package"`
+    SignType  string `json:"signType"`
+    PaySign   string `json:"paySign"`
+    TimeExpire int64 `json:"timeExpire"`
+}
+
+type WechatPayJsAPIResp {
+    Resp
+    Data WechatPayJsAPIData `json:"data"`
+}
+
+type SelfPayData {
+    ID string `json:"id"`
+}
+
+type SelfPayResp {
+    Resp
+    Data SelfPayData `json:"data"`
+}
+
+type GetSonTreeData {
+    User []FatherUser `json:"user"`
+}
+
+type GetSonTreeResp {
+    Resp
+    Data GetSonTreeData `json:"data"`
+}
+
+type GetPayListData {
+    Count int64 `json:"count"`
+    Pay []PayRecord `json:"pay"`
+}
+
+type GetPayListResp {
+    Resp
+    Data GetPayListData `json:"data"`
+}
+
+type GetDefrayInfoData {
+    Info DefrayData `json:"info"`
+}
+
+type GetDefrayInfoResp {
+    Resp
+    Data GetDefrayInfoData `json:"data"`
+}
+
+type CreateDefrayData {
+    Token string `json:"token"`
+    TradeID string `json:"tradeID"`
+}
+
+type CreateDefrayResp {
+    Resp
+    Data CreateDefrayData `json:"data"`
+}
+
+type CreateBackData {
+    TradeID string `json:"tradeID"`
+}
+
+type CreateBackResp {
+    Resp
+    Data CreateBackData `json:"data"`
+}
+
+type QueryDefrayData {
+    Status string `json:"status"`
+    PayerID string `json:"payerID"`
+    PayAt int64 `json:"payAt"`
+    ReturnAt int64 `json:"returnAt"`
+    ReturnReason string `json:"returnReason"`
+}
+
+type QueryDefrayResp {
+    Resp
+    Data QueryDefrayData `json:"data"`
+}
+
+type GetDefrayListData {
+    Count int64 `json:"count"`
+    Defray []DefrayRecord `json:"defray"`
+}
+
+type GetDefrayListResp {
+    Resp
+    Data GetDefrayListData `json:"data"`
+}
+
+type GetDefrayOwnerListData {
+    Count int64 `json:"count"`
+    Defray []OwnerDefrayRecord `json:"defray"`
+}
+
+type GetDefrayOwnerListResp {
+    Resp
+    Data GetDefrayOwnerListData `json:"data"`
+}
+
+
+type GetBackListData {
+    Count int64 `json:"count"`
+    Back []BackRecord `json:"back"`
+}
+
+type GetBackListResp {
+    Resp
+    Data GetBackListData `json:"data"`
+}
+
+type GetWithdrawListData {
+    Count int64 `json:"count"`
+    Withdraw []WithdrawRecord `json:"withdraw"`
+}
+
+type GetWithdrawListResp {
+    Resp
+    Data GetWithdrawListData `json:"data"`
+}
+
+type GetWalletRecordListData {
+    Count int64 `json:"count"`
+    Record []WalletRecord `json:"record"`
+}
+
+type GetWalletRecordListResp {
+    Resp
+    Data GetWalletRecordListData `json:"data"`
+}
+
+
+type GetMessageListData {
+    Count int64 `json:"count"`
+    Message []Message `json:"message"`
+}
+
+type GetMessageListResp {
+    Resp
+    Data GetMessageListData `json:"data"`
+}
+
+type GetHomePageData {
+    HomePage HomePage `json:"homepage"`
+}
+
+type GetHomePageResp {
+    Resp
+    Data GetHomePageData `json:"data"`
+}
+
+type InvoiceData {
+    InvoiceID string `json:"invoiceID"`
+    NotBilled int64 `json:"notBilled"`
+}
+
+type InvoiceResp {
+    Resp
+    Data InvoiceData `json:"data"`
+}
+
+type GetInvoiceListData {
+    Count int64 `json:"count"`
+    Invoice []Invoice `json:"invoice"`
+}
+
+type GetInvoiceListResp {
+    Resp
+    Data GetInvoiceListData `json:"data"`
+}
+
+type GetInvoiceData {
+    Invoice Invoice `json:"invoice"`
+}
+
+type GetInvoiceResp {
+    Resp
+    Data GetInvoiceData `json:"data"`
+}
+
+type DownloadInvoiceData {
+    BlueInvoice string `json:"blueInvoice"`
+    RedInvoice string `json:"redInvoice"`
+}
+
+type DownloadInvoiceResp {
+    Resp
+    Data DownloadInvoiceData `json:"data"`
+}
+
+type AdminDownloadInvoiceData {
+    BlueInvoice string `json:"blueInvoice"`
+    RedInvoice string `json:"redInvoice"`
+}
+
+type AdminDownloadInvoiceResp {
+    Resp
+    Data AdminDownloadInvoiceData `json:"data"`
+}
+
+type QueryTradeData {
+    Success bool `json:"success"`
+}
+
+type QueryTradeResp {
+    Resp
+    Data QueryTradeData `json:"data"`
+}
+
+type QueryRefundData {
+    Refund bool `json:"refund"`
+}
+
+type QueryRefundResp {
+    Resp
+    Data QueryRefundData `json:"data"`
+}
+
+type QueryWithdrawData {
+    Withdraw bool `json:"withdraw"`
+}
+
+type QueryWithdrawResp {
+    Resp
+    Data QueryWithdrawData `json:"data"`
+}
+
+type SendMsgData {
+    Have bool `json:"have"`
+    Success bool `json:"success"`
+}
+
+type SendMsgResp {
+    Resp
+    Data SendMsgData `json:"data"`
+}
+
+type GetDiscountListData {
+    Count int64 `json:"count"`
+    Discount []Discount `json:"discount"`
+}
+
+type GetDiscountListResp {
+    Resp
+    Data GetDiscountListData `json:"data"`
+}
+
+type GetCouponsListData {
+    Count int64 `json:"count"`
+    Coupons []Coupons `json:"coupons"`
+}
+
+type GetCouponsListResp {
+    Resp
+    Data GetCouponsListData `json:"data"`
+}
+
+type FooterData {
+    ICP1 string `json:"icp1"`
+    ICP2 string `json:"icp2"`
+    Gongan string  `json:"gongan"`
+    Copyright string `json:"copyright"`
+}
+
+type FooterResp {
+    Resp
+    Data FooterData `json:"data"`
+}
+
+type FileListData {
+    Count int64 `json:"count"`
+    File []File `json:"file"`
+}
+
+type FileListResp {
+    Resp
+    Data FileListData `json:"data"`
+}
+
+type AdminGetUserListData {
+    Count int64 `json:"count"`
+    User []UserEasyWithID `json:"user"`
+}
+
+type AdminGetUserListResp {
+    Resp
+    Data AdminGetUserListData `json:"data"`
+}
+
+type AdminGetUserData {
+    ID int64  `json:"id"`  // 用户数字ID
+    UID string `json:"uid"`  // 用户ID
+    Status string `json:"status"`  // 状态
+    Signin bool `json:"signin"`  // 是否单点登录
+    Father int64 `json:"father"`  // 父亲数字ID
+    Invite int64 `json:"invite"`  // 邀请人
+    tokenExpiration int64 `json:"tokenExpiration"`  // 登录有效时长
+    RoleID int64 `json:"roleID"`  // 角色ID
+    RoleName string `json:"roleName"`  // 角色名称
+    RoleSign string `json:"roleSign"`  // 角色标识
+    IsAdmin bool `json:"isAdmin"`  // 是否根管理员
+    CreateAt int64 `json:"createAt"`  // 注册时间
+
+    Phone string `json:"phone"`  // 手机号
+    Email string `json:"email"`  // 邮箱
+
+    Nickname string `json:"nickname"`  // 昵称
+    Header string `json:"header"`  // 头像
+
+    WxOpenID string `json:"wxOpenID"`  // 微信OpenID
+    WxUnionID string `json:"wxUnionID"`  // 微信UnionID
+    FuwuhaoOpenID string `json:"fuwuhaoOpenID"`  // 服务号OpenID
+    WxNickName string `json:"wxNickName"`  // 微信昵称
+    WxHeader string `json:"wxHeader"`  // 微信头像
+
+    WxWebHook string `json:"wxWebHook"`  // 企业微信webhook
+
+    HasPassword bool `json:"hasPassword"`  // 是否有密码
+
+    UserName string `json:"userName"`  // 用户名
+
+    Has2FA bool `json:"has2FA"`  // 是否有2FA
+
+    AddressName     string `json:"addressName"`  // 地址收件人
+    AddressPhone    string `json:"addressPhone"`  // 地址手机手机号
+    AddressEmail    string `json:"addressEmail"`  // 地址手机邮箱
+    AddressProvince string `json:"addressProvince"`  // 省份
+    AddressCity     string `json:"addressCity"`  // 城市
+    AddressDistrict string `json:"addressDistrict"`  // 区县
+    AddressAddress  string `json:"addressAddress"`  // 详细地址
+    AddressArea []string `json:"addressArea"`
+
+    AllowPhone bool `json:"allowPhone"`
+    AllowEmail bool `json:"allowEmail"`
+    AllowPassword bool `json:"allowPassword"`
+    AllowWeChat bool `json:"allowWeChat"`
+    AllowSecondFA bool `json:"allowSecondFA"`
+
+    Remark string `json:"remark"`
+}
+
+type AdminGetUserResp {
+    Resp
+    Data AdminGetUserData `json:"data"`
+}
+
+type AdminGetUserFinanceData {
+    WalletID int64 `json:"walletID"`
+    Balance int64 `json:"balance"`  // 余额
+    WaitBalance int64 `json:"waitBalance"`
+    Cny int64 `json:"cny"`
+    NotBilled int64 `json:"notBilled"`  // 未开票金额
+    Billed int64 `json:"billed"`  // 总共可开票金额
+    HasBilled int64 `json:"hasBilled"`  // 已开票金额
+    Withdraw int64 `json:"withdraw"`
+    WaitWithdraw int64 `json:"waitWithdraw"`
+    NotWithdraw int64 `json:"notWithdraw"`
+    HasWithdraw int64 `json:"hasWithdraw"`
+
+    TitleName string `json:"titleName"`  // 抬头名称
+    TitleTaxID string `json:"titleTaxID"`  // 抬头税号（个人身份证号码，企业税号）
+    TitleBankID string `json:"titleBannedID"`  // 抬头银行账户
+    TitleBank string `json:"titleBank"`  // 抬头开户行
+}
+
+type AdminGetUserFinanceResp {
+    Resp
+    Data AdminGetUserFinanceData `json:"data"`
+}
+
+type AdminGetUserInfoData {
+    UserName string `json:"userName"`  // 用户实名
+    UserIDCard string `json:"userIDCard"`  // 用户身份证
+    UserIDCardUrl string `json:"userIdCardUrl"`
+    UserIDCardBackUrl string `json:"userIdCardBackUrl"`
+
+    CompanyName string `json:"companyName"`  // 企业实名
+    CompanyID string `json:"companyID"`  // 企业统一社会信用代码
+    LicenseUrl string `json:"licenseUrl"`
+    LegalPersonName string `json:"legalPersonName"`  // 法人姓名
+    LegalPersonIDCard string `json:"legalPersonIDCard"`  // 法人身份证
+    LegalPersonIDCardUrl string `json:"legalPersonIdCardUrl"`
+    LegalPersonIDCardBackUrl string `json:"legalPersonIdCardBackUrl"`
+}
+
+type AdminGetUserInfoResp {
+    Resp
+    Data AdminGetUserInfoData `json:"data"`
+}
+
+type AdminGetHomePageData {
+    CompanyName  string `json:"company"`  // 公司名称
+    Introduction string `json:"introduction"` // 用户简介
+    Address      string `json:"address"`           // 联系地址
+    Phone        string `json:"phone"`               // 联系电话
+    Email        string `json:"email"`               // 联系邮件
+    WeChat       string `json:"wechat"`             // 微信号
+    QQ           string `json:"qq"`                     // QQ号
+    Sex          string `json:"sex"`                   // 是否男性
+    Link         string `json:"link"`                 // 外部连接
+    Industry     string `json:"industry"`         // 行业
+    Position     string `json:"position"`         // 职位
+}
+
+type AdminGetHomePageResp {
+    Resp
+    Data AdminGetHomePageData `json:"data"`
+}
+
+type AdminFatherUser {
+    UserID int64 `json:"userID"`  // 用户数字ID
+    UserEasy
+    RoleID int64 `json:"roleID"`  // 角色ID
+    RoleName string `json:"roleName"`  // 角色名称
+    RoleSign string `json:"roleSign"`  // 角色标识
+    Lineal bool `json:"lineal"`  // 直系亲属
+    NephewStatus int64 `json:"nephewStatus"`  // 叔侄关系 （直系亲属忽略）
+    Son []AdminFatherUser `json:"son"`  // 子用户
+}
+
+type AdminGetSonTreeData {
+    User []AdminFatherUser `json:"user"`
+}
+
+type AdminGetSonTreeResp {
+    Resp
+    Data AdminGetSonTreeData `json:"data"`
+}
+
+type AdminGetPayListData {
+    Count int64 `json:"count"`
+    Pay []AdminPayRecord `json:"pay"`
+}
+
+type AdminGetPayListResp {
+    Resp
+    Data AdminGetPayListData `json:"data"`
+}
+
+type AdminGetDefrayListData {
+    Count int64 `json:"count"`
+    Defray []AdminDefrayRecord `json:"defray"`
+}
+
+type AdminGetDefrayListResp {
+    Resp
+    Data AdminGetDefrayListData `json:"data"`
+}
+
+type AdminGetDefrayOwnerListData {
+    Count int64 `json:"count"`
+    Defray []AdminDefrayRecord `json:"defray"`
+}
+
+type AdminGetDefrayOwnerListResp {
+    Resp
+    Data AdminGetDefrayOwnerListData `json:"data"`
+}
+
+type AdminGetWalletRecordListData {
+    Count int64 `json:"count"`
+    Record []AdminWalletRecord `json:"record"`
+}
+
+type AdminGetWalletRecordListResp {
+    Resp
+    Data AdminGetWalletRecordListData `json:"data"`
+}
+
+type AdminGetBackListData {
+    Count int64 `json:"count"`
+    Back []AdminBackRecord `json:"back"`
+}
+
+type AdminGetBackListResp {
+    Resp
+    Data AdminGetBackListData `json:"data"`
+}
+
+type AdminGetWithdrawListData {
+    Count int64 `json:"count"`
+    Withdraw []AdminWithdrawRecord `json:"withdraw"`
+}
+
+type AdminGetWithdrawListResp {
+    Resp
+    Data AdminGetWithdrawListData `json:"data"`
+}
+
+type AdminGetMessageListData {
+    Count int64 `json:"count"`
+    Message []AdminMessage `json:"message"`
+}
+
+type AdminGetMessageListResp {
+    Resp
+    Data AdminGetMessageListData `json:"data"`
+}
+
+type AdminGetEmailMessageListData {
+    Count int64 `json:"count"`
+    Message []AdminEmailMessage `json:"message"`
+}
+
+type AdminGetEmailMessageListResp {
+    Resp
+    Data AdminGetEmailMessageListData `json:"data"`
+}
+
+type AdminGetFuwuhaoMessageListData {
+    Count int64 `json:"count"`
+    Message []AdminFuwuhaoMessage `json:"message"`
+}
+
+type AdminGetFuwuhaoMessageListResp {
+    Resp
+    Data AdminGetFuwuhaoMessageListData `json:"data"`
+}
+
+type AdminGetSmsMessageListData {
+    Count int64 `json:"count"`
+    Message []AdminSmsMessage `json:"message"`
+}
+
+type AdminGetSmsMessageListResp {
+    Resp
+    Data AdminGetSmsMessageListData `json:"data"`
+}
+
+type AdminGetWxrobotMessageListData {
+    Count int64 `json:"count"`
+    Message []AdminWxrobotMessage `json:"message"`
+}
+
+type AdminGetWxrobotMessageListResp {
+    Resp
+    Data AdminGetWxrobotMessageListData `json:"data"`
+}
+
+type AdminGetInvoiceListData {
+    Count int64 `json:"count"`
+    Invoice []AdminInvoice `json:"invoice"`
+}
+
+type AdminGetInvoiceListResp {
+    Resp
+    Data AdminGetInvoiceListData `json:"data"`
+}
+
+type AdminSendMsgData {
+    Have bool `json:"have"`
+    Success bool `json:"success"`
+}
+
+type AdminSendMsgResp {
+    Resp
+    Data AdminSendMsgData `json:"data"`
+}
+
+type AdminGetPayInfoData {
+    Pay AdminPayRecord `json:"pay"`
+}
+
+type AdminGetPayInfoResp {
+    Resp
+    Data AdminGetPayInfoData `json:"data"`
+}
+
+type AdminGetDefrayInfoData {
+    Defray AdminDefrayRecord `json:"defray"`
+}
+
+type AdminGetDefrayInfoResp {
+    Resp
+    Data AdminGetDefrayInfoData `json:"data"`
+}
+
+type AdminGetBackInfoData {
+    Back AdminBackRecord `json:"back"`
+}
+
+type AdminGetBackInfoResp {
+    Resp
+    Data AdminGetBackInfoData `json:"data"`
+}
+
+type AdminGetWithdrawInfoData {
+    Withdraw AdminWithdrawRecord `json:"withdraw"`
+}
+
+type AdminGetWithdrawInfoResp {
+    Resp
+    Data AdminGetWithdrawInfoData `json:"data"`
+}
+
+type AdminGetInvoiceInfoData {
+    Invoice AdminInvoice `json:"invoice"`
+}
+
+type AdminGetInvoiceInfoResp {
+    Resp
+    Data AdminGetInvoiceInfoData `json:"data"`
+}
+
+type AdminGetDiscountListData {
+    Count int64 `json:"count"`
+    Discount []AdminDiscount `json:"discount"`
+}
+
+type AdminGetDiscountListResp {
+    Resp
+    Data AdminGetDiscountListData `json:"data"`
+}
+
+type AdminGetCouponsListData {
+    Count int64 `json:"count"`
+    Coupons []AdminCoupons `json:"coupons"`
+}
+
+type AdminGetCouponsListResp {
+    Resp
+    Data AdminGetCouponsListData `json:"data"`
+}
+
+type AdminGetDistributionListData {
+    Distribution []AdminDistribution `json:"coupons"`
+}
+
+type AdminGetDistributionListResp {
+    Resp
+    Data AdminGetDistributionListData `json:"data"`
+}
+
+type GetAnnouncementListData {
+    Count int64 `json:"count"`
+    Announcement []Announcement `json:"announcement"`
+}
+
+type GetAnnouncementListResp {
+    Resp
+    Data GetAnnouncementListData `json:"data"`
+}
+
+type AdminGetAnnouncementListData {
+    Count int64 `json:"count"`
+    Announcement []AdminAnnouncement `json:"announcement"`
+}
+
+type AdminGetAnnouncementListResp {
+    Resp
+    Data AdminGetAnnouncementListData `json:"data"`
+}
+
+type AdminMenuData {
+    Menu []Menu `json:"menu"`
+    Count int64 `json:"count"`
+}
+
+type AdminMenuResp {
+    Resp
+    Data AdminMenuData `json:"data"`
+}
+
+type GetDomainData {
+    Name string `json:"name"`
+    Describe string `json:"describe"`
+    KeyMap []LabelValueRecord `json:"keyMap"`
+    Agreement string `json:"agreement"`
+}
+
+type GetDomainResp {
+    Resp
+    Data GetDomainData `json:"data"`
+}
+
+type GetAllPermissionsData {
+    Permissions []LabelValueRecord `json:"permissions"`
+}
+
+type GetAllPermissionsResp {
+    Resp
+    Data GetAllPermissionsData `json:"data"`
+}
+
+type GetAllSubPermissionsData {
+    Permissions []LabelValueRecord `json:"permissions"`
+}
+
+type GetAllSubPermissionsResp {
+    Resp
+    Data GetAllSubPermissionsData `json:"data"`
+}
+
+type RoleGetWebsiteListData {
+    Count int64 `json:"count"`
+    Website []WebsiteEasy `json:"website"`
+}
+
+type RoleGetWebsiteListResp {
+    Resp
+    Data RoleGetWebsiteListData `json:"data"`
+}
+
+type Oauth2GetWebsiteListData {
+    Count int64 `json:"count"`
+    Website []WebsiteEasy `json:"website"`
+}
+
+type Oauth2GetWebsiteListResp {
+    Resp
+    Data Oauth2GetWebsiteListData `json:"data"`
+}
+
+type UserGetAuditData {
+    Audit []Audit `json:"audit"`
+    Count int64 `json:"count"`
+}
+
+type UserGetAuditResp {
+    Resp
+    Data UserGetAuditData `json:"data"`
+}
+
+type GetUncleListData {
+    User []UncleUserEasy `json:"user"`
+}
+
+type GetUncleListResp {
+    Resp
+    Data GetUncleListData `json:"data"`
+}
+
+type GetInviteListData {
+    User []UserLessEasy `json:"user"`
+    Count int64 `json:"count"`
+}
+
+type GetInviteListResp {
+    Resp
+    Data GetInviteListData `json:"data"`
+}
+
+type GetFatherData {
+    HasFather bool `json:"hasFather"`
+    Father UserEasy `json:"father"`
+}
+
+type GetFatherResp {
+    Resp
+    Data GetFatherData `json:"data"`
+}
+
+type GetInviteData {
+    HasInvite bool `json:"hasInvite"`
+    Invite UserMoreEasy `json:"invite"`
+}
+
+type GetInviteResp {
+    Resp
+    Data GetInviteData `json:"data"`
+}
+
+type AdminGetAuditData {
+    Audit []AdminAudit `json:"audit"`
+    Count int64 `json:"count"`
+}
+
+type AdminGetAuditResp {
+    Resp
+    Data AdminGetAuditData `json:"data"`
+}
+
+type GetOrderListData {
+    Order []WorkOrder `json:"order"`
+    Count int64 `json:"count"`
+}
+
+type GetOrderListResp {
+    Resp
+    Data GetOrderListData `json:"data"`
+}
+
+type GetOrderCommunicateListData {
+    Communicate []WorkOrderCommunicate `json:"communicate"`
+    Count int64 `json:"count"`
+}
+
+type GetOrderCommunicateListResp {
+    Resp
+    Data GetOrderCommunicateListData `json:"data"`
+}
+
+type AdminGetOrderListData {
+    Order []AdminWorkOrder `json:"order"`
+    Count int64 `json:"count"`
+}
+
+type AdminGetOrderListResp {
+    Resp
+    Data AdminGetOrderListData `json:"data"`
+}
+
+type AdminGetOrderCommunicateListData {
+    Communicate []WorkOrderCommunicate `json:"communicate"`
+    Count int64 `json:"count"`
+}
+
+type AdminGetOrderCommunicateListResp {
+    Resp
+    Data AdminGetOrderCommunicateListData `json:"data"`
+}
+
+type StartFackCheckData {
+    CertifyID string `json:"certifyID"`
+}
+
+type StartFackCheckResp {
+    Resp
+    Data StartFackCheckData `json:"data"`
+}
+
+type GetAgreementListData {
+    Count int64 `json:"count"`
+    Agreement []string `json:"agreement"`
+}
+
+type GetAgreementListResp {
+    Resp
+    Data GetAgreementListData `json:"data"`
+}
+
+type GetOauth2ListData {
+    Record []Oauth2Record `json:"record"`
+}
+
+type GetOauth2ListResp {
+    Resp
+    Data GetOauth2ListData `json:"data"`
+}
+
+type GetAccessRecordListData {
+    Count int64 `json:"count"`
+    Record []AccessRecord `json:"record"`
+}
+
+type GetAccessRecordListResp {
+    Resp
+    Data GetAccessRecordListData `json:"data"`
+}
+
+type GetOauth2RecordListData {
+    Count int64 `json:"count"`
+    Record []AccessRecord `json:"record"`
+}
+
+type GetOauth2RecordListResp {
+    Resp
+    Data GetOauth2RecordListData `json:"data"`
+}
+
+type GetAccessRecordListByCondData {
+    ListError string `json:"listError"`
+    ListQuery string `json:"listQuery"`
+    CountError string `json:"countError"`
+    CountQuery string `json:"countQuery"`
+    Count int64 `json:"count"`
+    Record []AccessRecord `json:"record"`
+}
+
+type GetAccessRecordListByCondResp {
+    Resp
+    Data GetAccessRecordListByCondData `json:"data"`
+}
+
+type GetTokenRecordListData {
+    Count int64 `json:"count"`
+    Record []TokenRecord `json:"record"`
+}
+
+type GetTokenRecordListResp {
+    Resp
+    Data GetTokenRecordListData `json:"data"`
+}
+
+type GetAccessRecordData {
+    Record AccessRecord `json:"record"`
+    Find bool `json:"find"`
+}
+
+type GetAccessRecordResp {
+    Resp
+    Data GetAccessRecordData `json:"data"`
+}
+
+type GetOauthRecordListData {
+    Count int64 `json:"count"`
+    Record []Oauth2LoginRecord `json:"record"`
+}
+
+type GetOauthRecordListResp {
+    Resp
+    Data GetOauthRecordListData `json:"data"`
+}
+
+type GetOauthBannedListData {
+    Record []Oauth2Banned `json:"record"`
+    Count int64 `json:"count"`
+}
+
+type GetOauthBannedListResp {
+    Resp
+    Data GetOauthBannedListData `json:"data"`
+}
+
+type AdminGetOauthRecordListData {
+    Count int64 `json:"count"`
+    Record []AdminOauth2LoginRecord `json:"record"`
+}
+
+type AdminGetOauthRecordListResp {
+    Resp
+    Data AdminGetOauthRecordListData `json:"data"`
+}
+
+type AdminGetOauthBannedListData {
+    Record []AdminOauth2Banned `json:"record"`
+}
+
+type AdminGetOauthBannedListResp {
+    Resp
+    Data AdminGetOauthBannedListData `json:"data"`
+}
+
+type AdminGetWebsiteFundingListData {
+    Count int64 `json:"count"`
+    Funding []WebsiteFunding `json:"funding"`
+}
+
+type AdminGetWebsiteFundingListResp {
+    Resp
+    Data AdminGetWebsiteFundingListData `json:"data"`
+}
+
+type AdminGetWebsiteFundingYearSumListData {
+    Funding []WebsiteFundingYearSum `json:"funding"`
+}
+
+type AdminGetWebsiteFundingYearSumListResp {
+    Resp
+    Data AdminGetWebsiteFundingYearSumListData `json:"data"`
+}
+
+type AdminPermissionData {
+    Permission []Policy `json:"permission"`
+    Count int64 `json:"count"`
+}
+
+type AdminPermissionResp {
+    Resp
+    Data AdminPermissionData `json:"data"`
+}
+
+type AdminPathData {
+    Path []UrlPath `json:"path"`
+    Count int64 `json:"count"`
+}
+
+type AdminPathResp {
+    Resp
+    Data AdminPathData `json:"data"`
+}
+
+type AdminWebsitePermissionData {
+    Permission []WebsitePolicy `json:"permission"`
+    Count int64 `json:"count"`
+}
+
+type AdminWebsitePermissionResp {
+    Resp
+    Data AdminWebsitePermissionData `json:"data"`
+}
+
+type AdminWebsitePathData {
+    Path []WebsiteUrlPath `json:"path"`
+    Count int64 `json:"count"`
+}
+
+type AdminWebsitePathResp {
+    Resp
+    Data AdminWebsitePathData `json:"data"`
+}
+
+type AdminApplicationData {
+    Application []AdminApplication `json:"application"`
+    Count int64 `json:"count"`
+}
+
+type AdminApplicationResp {
+    Resp
+    Data AdminApplicationData `json:"data"`
+}
+

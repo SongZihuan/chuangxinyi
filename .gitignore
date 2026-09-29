@@ -1,0 +1,23 @@
+# ── 通用：系统、编辑器、日志 ──
+.DS_Store
+.idea/
+.vscode/
+*.sw?
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.local
+
+# ── backend（Go）：本机配置与支付凭据，一律不入库 ──
+# 必须带 backend/ 前缀：无锚定的 etc/tmp/cert 提到根级会连带屏蔽 console 下同名目录
+backend/etc/
+backend/tmp/
+backend/cert/
+*.exe
+*.out
+
+# ── console（Vue3）──
+# 必须带 console/ 前缀：原 /dist 是根锚定，上提后不再屏蔽 console/dist/，构建产物会当场入库
+node_modules/
+console/dist/

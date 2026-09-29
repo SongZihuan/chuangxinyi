@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<script src="https://g.alicdn.com/AWSC/AWSC/awsc.js"></script>
+		<script type="text/javascript" src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+		<link rel="icon" href="/favicon.ico" />
+		<title>用户中心</title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<script type="text/javascript">
+			// 百度统计：部署时把站点 ID 填入下方并取消注释
+			// var _hmt = _hmt || [];
+			// (function () {
+			// 	var hm = document.createElement('script');
+			// 	hm.src = 'https://hm.baidu.com/hm.js?<你的百度统计站点ID>';
+			// 	var s = document.getElementsByTagName('script')[0];
+			// 	s.parentNode.insertBefore(hm, s);
+			// })();
+			// 处理业务返回结果：人机信息串上传接口的回调函数，通过业务服务端的返回结果，控制无痕验证的不同状态。
+			function yourRegisterRequest(json) {
+				console.log(json);
+				// 业务服务器请求回调控制是否需要二次验证
+				if (json.result.code === 100 || json.result.code === 200) {
+					// 无痕验证通过
+					alert('register success!');
+				} else if (json.result.code === 800 || json.result.code === 900) {
+					// 无痕验证失败，直接拦截
+					alert('register failed!');
+				} else if (json.result.code === 400) {
+					// 无痕验证失败，触发二次验证
+					// 二次验证码（滑动验证码）配置项设置，详情请见滑动验证集成方式文档
+					// 二次验证的appkey，scene，test值及success，fail，error的回调由nvc初始化时决定，请不要在二次验证时传入
+					var ncoption = {
+						// 声明滑动验证需要渲染的目标ID。
+						renderTo: 'slider',
+					};
+					// 唤醒二次验证（滑动验证码）
+					window.nvc.getNC(ncoption);
+				}
+			}
+		</script>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>

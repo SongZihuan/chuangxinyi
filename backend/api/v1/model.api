@@ -1,0 +1,1162 @@
+syntax = "v1"
+
+type UserLessEasy {
+    UID string `json:"id"`
+    Phone string `json:"phone"`
+    Status string `json:"status"`
+    CreateAt int64 `json:"createAt"`
+    InviteCount int64 `json:"inviteCount"`
+}
+
+type UserMoreEasy {
+    UID string `json:"id"`
+    RoleID int64 `json:"roleID"`
+    RoleName string `json:"roleName"`
+    RoleSign string `json:"roleSign"`
+    Phone string `json:"phone"`
+    UserName string `json:"userName"`
+    NickName string `json:"nickname"`
+    Header string `json:"header"`
+    Email string `json:"email"`
+    Status string `json:"status"`
+    CreateAt int64 `json:"createAt"`
+    InviteCount int64 `json:"inviteCount"`
+}
+
+type UserEasy {
+    UID string `json:"id"`
+    RoleID int64 `json:"roleID"`
+    RoleName string `json:"roleName"`
+    RoleSign string `json:"roleSign"`
+    Phone string `json:"phone"`
+    UserName string `json:"userName"`
+    NickName string `json:"nickname"`
+    Header string `json:"header"`
+    Email string `json:"email"`
+    UserRealName string `json:"userRealName"`
+    CompanyName string `json:"companyName"`
+    WeChatNickName string `json:"wechatNickName"`
+    WeChatHeader string `json:"wechatHeader"`
+    Signin bool `json:"signin"`
+    Status string `json:"status"`
+    InviteCount int64 `json:"inviteCount"`
+    TokenExpire int64 `json:"tokenExpire"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type UncleUserEasy {
+    UserEasy
+    UncleTag string `json:"uncleTag"`
+    UncleStatus int64 `json:"uncleStatus"`
+}
+
+type WebsiteUserEasy {
+    UID string `json:"id"`
+    RoleID int64 `json:"roleID"`
+    RoleName string `json:"roleName"`
+    RoleSign string `json:"roleSign"`
+    Phone string `json:"phone"`
+    UserName string `json:"userName"`
+    NickName string `json:"nickname"`
+    Header string `json:"header"`
+    Email string `json:"email"`
+    UserRealName string `json:"userRealName"`
+    CompanyName string `json:"companyName"`
+    WeChatNickName string `json:"wechatNickName"`
+    WeChatHeader string `json:"wechatHeader"`
+    UnionID string `json:"unionID"`
+    Signin bool `json:"signin"`
+    Status string `json:"status"`
+    InviteCount int64 `json:"inviteCount"`
+    TokenExpire int64 `json:"tokenExpire"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type UserInfo {
+    HasVerified bool `json:"hasVerified"`
+    UserName string `json:"userName"`
+    UserIDCard string `json:"userIDCard"`
+    VerifiedPhone string `json:"verifiedPhone"`
+
+    IsCompany bool `json:"isCompany"`
+    LegalPersonName string `json:"legalPersonName"`
+    LegalPersonIDCard string `json:"legalPersonIdCard"`
+    CompanyName string `json:"companyName"`
+    CompanyID string `json:"companyID"`
+}
+
+type UserInfoEsay {
+    HasVerified bool `json:"hasVerified"`
+    UserName string `json:"userName"`
+
+    IsCompany bool `json:"isCompany"`
+    LegalPersonName string `json:"legalPersonName"`
+    CompanyName string `json:"companyName"`
+}
+
+type UserData {
+    HasPassword bool `json:"hasPassword"`
+    HasEmail bool `json:"hasEmail"`
+    Has2FA bool `json:"has2FA"`
+    HasWxrobot bool `json:"hasWxrobot"`
+    HasWeChat bool `json:"hasWeChat"`
+    HasUnionID bool `json:"hasUnionId"`
+    HasFuwuhao bool `json:"hasFuwuhao"`
+    HasVerified bool `json:"hasVerified"`
+    IsCompany bool `json:"isCompany"`
+    HasUserOriginal bool `json:"hasUserOriginal"`
+    HasUserFaceCheck bool `json:"hasUserFaceCheck"`
+    HasCompanyOriginal bool `json:"hasCompanyOriginal"`
+    HasLegalPersonFaceCheck bool `json:"hasLegalPersonFaceCheck"`
+    VerifiedPhone string `json:"verifiedPhone"`
+    AllowPhone bool `json:"allowPhone"`
+    AllowEmail bool `json:"allowEmail"`
+    AllowPassword bool `json:"allowPassword"`
+    AllowWeChat bool `json:"allowWeChat"`
+    AllowSecondFA bool `json:"allowSecondFA"`
+}
+
+type UserBalance {
+    Balance int64 `json:"balance"`
+    WaitBalance int64 `json:"waitBalance"`
+    Cny int64 `json:"cny"`
+    NotBilled int64 `json:"notBilled"`  // 可能为负数，表示倒欠的发票
+    Billed int64 `json:"billed"`
+    HasBilled int64 `json:"hasBilled"`
+    WalletID int64 `json:"walletID"`
+    Withdraw int64 `json:"withdraw"`
+    WaitWithdraw int64 `json:"waitWithdraw"`
+    NotWithdraw int64 `json:"notWithdraw"`
+    HasWithdraw int64 `json:"hasWithdraw"`
+}
+
+type FatherUser {
+    UserEasy
+    Lineal bool `json:"lineal"`  // 直系亲属
+    NephewStatus int64 `json:"nephewStatus"`  // 叔侄关系 （直系亲属忽略）
+    Son []FatherUser `json:"son"`
+}
+
+type PayRecord {
+    User UserEasy `json:"user"`
+    TradeNo string `json:"tradeNo"`
+    TradeID string `json:"tradeID"`
+    Subject string `json:"subject"`
+    PayWay string `json:"payWay"`
+    Cny int64 `json:"cny"`
+    Get int64 `json:"get"`
+    TradeStatus int64 `json:"tradeStatus"`
+    HasCoupons bool `json:"hasCoupons"`
+    Balance int64 `json:"balance"`  // 充值后的余额
+    CreateAt int64 `json:"createAt"`
+    PayAt int64 `json:"payAt"`
+    RefundAt int64 `json:"refundAt"`
+}
+
+type AdminPayRecord {
+    UserID int64 `json:"userID"`
+    WalletID int64 `json:"walletID"`
+    User UserEasy `json:"user"`
+    TradeNo string `json:"tradeNo"`
+    TradeID string `json:"tradeID"`
+    Subject string `json:"subject"`
+    PayWay string `json:"payWay"`
+    Cny int64 `json:"cny"`
+    Get int64 `json:"get"`
+    BuyerID string `json:"buyerID"`
+    TradeStatus int64 `json:"tradeStatus"`
+    CouponsID int64 `json:"couponsID"`
+    Balance int64 `json:"balance"`  // 支付后的余额
+    Remark string `json:"remark"`
+    CreateAt int64 `json:"createAt"`
+    PayAt int64 `json:"payAt"`
+    RefundAt int64 `json:"refundAt"`
+}
+
+type DefrayData {
+    MustSelfDefray bool `json:"mustSelfDefray"`
+    HasOwner bool `json:"hasOwner"`  // 是否有购买人
+    Owner UserLessEasy `json:"owner"`  // 购买人信息
+    Subject   string `json:"subject"`   // 标题
+    Price     int64  `json:"price"`     // 价格
+    Quantity  int64  `json:"quantity"`  // 数量
+    UnitPrice int64  `json:"unitPrice"` // 单价
+    Describe  string  `json:"describe"`  // 描述
+    Supplier  string `json:"supplier"`  // 供应商
+}
+
+type OwnerDefrayRecord {
+    MustSelfDefray bool `json:"mustSelfDefray"`
+    Owner UserEasy `json:"owner"`
+    User UserLessEasy `json:"user"`
+    DefrayID string `json:"defrayID"`
+    Subject   string `json:"subject"`   // 标题
+    Price     int64  `json:"price"`     // 价格
+    RealPrice int64 `json:"realPrice"`  // 实际支付金额
+    UnitPrice int64  `json:"unitPrice"` // 单价
+    Quantity  int64  `json:"quantity"`  // 数量
+    Describe  string  `json:"describe"`  // 描述
+    Supplier  string `json:"supplier"`  // 供应商
+    Balance int64 `json:"balance"`  // 支付后的余额
+    InvitePre          int64  `json:"invitePre"`
+    DistributionLevel1 int64  `json:"distributionLevel1"`
+    DistributionLevel2 int64  `json:"distributionLevel2"`
+    DistributionLevel3 int64  `json:"distributionLevel3"`
+    CanWithdraw bool `json:"canWithdraw"`
+    ReturnDayLimit int64 `json:"returnDayLimit"`
+    HasCoupons bool `json:"hasCoupons"`
+    DefrayStatus int64 `json:"defrayStatus"`
+    CreateAt int64 `json:"createAt"`
+    DefrayAt int64 `json:"defrayAt"`
+    LastReturnAt int64 `json:"lastReturnAt"`
+    ReturnAt int64 `json:"returnAt"`
+}
+
+type DefrayRecord {
+    MustSelfDefray bool `json:"mustSelfDefray"`
+    HasOwner bool `json:"hasOwner"`
+    Owner UserLessEasy `json:"owner"`
+    User UserEasy `json:"user"`
+    DefrayID string `json:"defrayID"`
+    Subject   string `json:"subject"`   // 标题
+    Price     int64  `json:"price"`     // 价格
+    RealPrice int64 `json:"realPrice"`  // 实际支付金额
+    UnitPrice int64  `json:"unitPrice"` // 单价
+    Quantity  int64  `json:"quantity"`  // 数量
+    Describe  string  `json:"describe"`  // 描述
+    Supplier  string `json:"supplier"`  // 供应商
+    Balance int64 `json:"balance"`  // 支付后的余额
+    InvitePre          int64  `json:"invitePre"`
+    DistributionLevel1 int64  `json:"distributionLevel1"`
+    DistributionLevel2 int64  `json:"distributionLevel2"`
+    DistributionLevel3 int64  `json:"distributionLevel3"`
+    CanWithdraw bool `json:"canWithdraw"`
+    ReturnDayLimit int64 `json:"returnDayLimit"`
+    HasCoupons bool `json:"hasCoupons"`
+    DefrayStatus int64 `json:"defrayStatus"`
+    CreateAt int64 `json:"createAt"`
+    DefrayAt int64 `json:"defrayAt"`
+    LastReturnAt int64 `json:"lastReturnAt"`
+    ReturnAt int64 `json:"returnAt"`
+}
+
+type AdminDefrayRecord {
+    MustSelfDefray bool `json:"mustSelfDefray"`
+    DefrayID string `json:"defrayID"`
+    UserID int64 `json:"userID"`
+    WalletID int64 `json:"walletID"`
+    HasOwner bool `json:"hasOwner"`
+    OwnerID int64 `json:"ownerID"`
+    Owner UserEasy `json:"owner"`
+    User UserEasy `json:"user"`
+    Subject   string `json:"subject"`   // 标题
+    Price     int64  `json:"price"`     // 价格
+    RealPrice int64 `json:"realPrice"`  // 实际支付金额
+    UnitPrice int64  `json:"unitPrice"` // 单价
+    Quantity  int64  `json:"quantity"`  // 数量
+    Describe  string  `json:"describe"`  // 描述
+    SupplierID int64 `json:"supplierID"`
+    Supplier  string `json:"supplier"`  // 供应商
+    Balance int64 `json:"balance"`  // 支付后的余额
+    InvitePre          int64  `json:"invitePre"`
+    DistributionLevel1 int64  `json:"distributionLevel1"`
+    DistributionLevel2 int64  `json:"distributionLevel2"`
+    DistributionLevel3 int64  `json:"distributionLevel3"`
+    CanWithdraw bool `json:"canWithdraw"`
+    CouponsID int64 `json:"couponsID"`
+    DefrayStatus int64 `json:"defrayStatus"`
+    Remark string `json:"remark"`
+    CreateAt int64 `json:"createAt"`
+    DefrayAt int64 `json:"defrayAt"`
+    ReturnAt int64 `json:"returnAt"`
+}
+
+type Message {
+    ID int64 `json:"id"`
+    Title string `json:"title"`
+    Content string `json:"content"`
+    Sender string `json:"sender"`
+    SenderLink string `json:"senderLink"`
+    CreateAt int64  `json:"createAt"`
+    ReadAt int64 `json:"readAt"`
+}
+
+type AdminMessage {
+    ID int64 `json:"id"`
+    UserID int64 `json:"userID"`
+    Title string `json:"title"`
+    Content string `json:"content"`
+    Sender string `json:"sender"`
+    SenderID int64 `json:"senderID"`
+    SenderLink string `json:"senderLink"`
+    CreateAt int64  `json:"createAt"`
+    ReadAt int64 `json:"readAt"`
+}
+
+type HomePage {
+    CompanyName  string `json:"company"`
+    Introduction string `json:"introduction"` // 用户简介
+    Address      string `json:"address"`           // 联系地址
+    Phone        string `json:"phone"`               // 联系电话
+    Email        string `json:"email"`               // 联系邮件
+    WeChat       string `json:"wechat"`             // 微信号
+    QQ           string `json:"qq"`                     // QQ号
+    Sex          string `json:"sex"`                   // 是否男性
+    Link         string `json:"link"`                 // 外部连接
+    Industry     string `json:"industry"`         // 行业
+    Position     string `json:"position"`         // 职位
+}
+
+type Title {
+    Name   string `json:"name"`       // 姓名，公司名
+    TaxID string `json:"taxID"`       // 税号，身份证号
+    BankID string `json:"bankID"`     // 银行卡号
+    Bank   string `json:"bank"`       // 开户行
+}
+
+type Address {
+    Name      string `json:"name"`
+    Phone     string `json:"phone"`
+    Email     string `json:"email"`
+    Province  string `json:"province"`
+    City      string `json:"city"`
+    District  string `json:"district"`
+    Address   string `json:"address"`
+    Area   []string `json:"area"`
+}
+
+type InvoiceAddress {
+    Name      string `json:"name"`
+    Phone     string `json:"phone"`
+    Email     string `json:"email"`
+    Province  string `json:"province"`
+    City      string `json:"city"`
+    District  string `json:"district"`
+    Address   string `json:"address"`
+}
+
+type Invoice {
+    User UserEasy `json:"user"`
+    InvoiceID string `json:"invoiceID"`
+    Type int64 `json:"type"`  // 1-个人普票 2-企业普票 3-企业专票
+    Title Title `json:"title"`
+    Address InvoiceAddress `json:"address"`
+    Amount int64 `json:"amount"`
+    Status int64 `json:"status"`  // 1-待开票 2-已开票 3-已退票 4-信息错误
+    CreateAt int64 `json:"createAt"`
+    BillingAt int64 `json:"billingAt"`
+    IssuerAt int64 `json:"issuerAt"`
+    ReturnAt int64 `json:"returnAt"`
+    RedIssuerAt int64 `json:"redIssuerAt"`
+}
+
+type AdminInvoice {
+    UserID int64 `json:"userID"`
+    WalletID int64 `json:"walletID"`
+    User UserEasy `json:"user"`
+    InvoiceID string `json:"invoiceID"`
+    Type int64 `json:"type"`  // 1-个人普票 2-企业普票 3-企业专票
+    Title Title `json:"title"`
+    Address InvoiceAddress `json:"address"`
+    Amount int64 `json:"amount"`
+    InvoiceCode string `json:"invoiceCode"`
+    InvoiceNumber string `json:"invoiceNumber"`
+    InvoiceCheckCdoe string `json:"invoiceCheckCdoe"`
+    RedInvoiceCode string `json:"redInvoiceCode"`
+    RedInvoiceNumber string `json:"redInvoiceNumber"`
+    RedInvoiceCheckCode string `json:"redInvoiceCheckCode"`
+    Remark string `json:"remark"`
+    Status int64 `json:"status"`  // 1-待开票 2-已开票 3-已退票 4-信息错误
+    CreateAt int64 `json:"createAt"`
+    BillingAt int64 `json:"billingAt"`
+    IssuerAt int64 `json:"issuerAt"`
+    ReturnAt int64 `json:"returnAt"`
+    RedIssuerAt int64 `json:"redIssuerAt"`
+}
+
+type Coupons {
+    ID int64 `json:"id"`
+    Name string `json:"name"`
+    Type int64 `json:"type"`
+    Content map[string]interface{} `json:"content"`
+}
+
+type Discount {
+    ID int64 `json:"id"`
+    Name            string `json:"name"`
+    Describe        string `json:"describe"`
+    ShortDescribe string `json:"shortDescribe"`
+    Type            int64   `json:"type"`
+    Quota           map[string]interface{} `json:"quota"`
+    DayLimit int64 `json:"dayLimit"`
+    MonthLimit int64 `json:"monthLimit"`
+    YearLimit int64 `json:"yearLimit"`
+    Limit int64 `json:"limit"`
+    NeedVerify bool `json:"needVerify"`
+    NeedCompany bool `json:"needCompany"`
+    NeedUserOrigin bool `json:"needUserOrigin"`
+    NeedCompanyOrigin bool `json:"needCompanyOrigin"`
+    NeedUserFace bool `json:"needUserFace"`
+    NeedCompanyFace bool `json:"needCompanyFace"`
+}
+
+type AdminDiscount {
+    ID int64 `json:"id"`
+    Name            string `json:"name"`
+    Describe        string `json:"describe"`
+    ShortDescribe string `json:"shortDescribe"`
+    Type            int64   `json:"type"`
+    Quota           map[string]interface{} `json:"quota"`
+    DayLimit int64 `json:"dayLimit"`
+    MonthLimit int64 `json:"monthLimit"`
+    YearLimit int64 `json:"yearLimit"`
+    Limit int64 `json:"limit"`
+    NeedVerify bool `json:"needVerify"`
+    NeedCompany bool `json:"needCompany"`
+    NeedUserOrigin bool `json:"needUserOrigin"`
+    NeedCompanyOrigin bool `json:"needCompanyOrigin"`
+    NeedUserFace bool `json:"needUserFace"`
+    NeedCompanyFace bool `json:"needCompanyFace"`
+    Show bool `json:"show"`
+    Remark string `json:"remark"`
+}
+
+type AdminCoupons {
+    ID int64 `json:"id"`
+    UserID int64 `json:"userID"`
+    Name string `json:"name"`
+    Type int64 `json:"type"`
+    Content map[string]interface{} `json:"content"`
+}
+
+type PasswordCheck struct {
+    PasswordHash string `json:"passwordHash"`// 密码（一次哈希）
+    Uid          string `json:"uid"`         // 用户ID（支持手机号和邮箱）
+}
+
+type SecondFACheck struct {
+    Second2FAToken string `json:"2FAPassToken"`
+    Code string  `json:"code"`
+}
+
+type Bind2FA struct {
+    Code   string `json:"code"`
+    Secret string `json:"secret"`
+}
+
+type ChangePassword struct {
+    passwordHash string `json:"passwordHash"`
+}
+
+type Policy {
+    ID int64 `json:"id"`
+    Sign string `json:"sign"`
+    Sort int64 `json:"sort"`
+    Name string `json:"name"`
+    Describe string `json:"describe"`
+    Status int64 `json:"status"`
+
+    IsAnonymous bool `json:"isAnonymous"`
+    IsUser bool `json:"isUser"`
+
+    Roles []MenuRole `json:"roles"`
+    // 不应该有Menus和UrlPaths
+}
+
+type RolePolicy struct {
+    ID       int64         `json:"id"`
+    Sign     string        `json:"sign"`
+    Sort     int64         `json:"sort"`
+    Name     string        `json:"name"`
+    IsAnonymous bool `json:"isAnonymous"`
+    IsUser bool `json:"isUser"`
+    Describe string        `json:"describe"`
+    Status   int64         `json:"status"`
+}
+
+// 角色
+type Role struct {
+    ID int64 `json:"id"`
+    Describe string                 `json:"describe"`// 描述
+    Name     string                 `json:"name"`
+    Sign string `json:"sign"`
+
+    Belong int64 `json:"belong"`
+    BelongName string `json:"belongName"`
+
+    NotDelete bool `json:"notDelete"`
+    NotChangeSign bool `json:"notChangeSign"`
+    NotChangePermissions bool `json:"notChangePermissions"`
+
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+
+    Permission []RolePolicy `json:"permission"`
+    Menus []RoleMenu `json:"menus"`
+    UrlPaths []RoleUrlPath `json:"urlPaths"`
+}
+
+// 角色
+type MenuRole struct {
+    ID int64 `json:"id"`
+    Describe string                 `json:"describe"`// 描述
+    Name     string                 `json:"name"`
+    Sign string `json:"sign"`
+
+    Belong int64 `json:"belong"`
+    BelongName string `json:"belongName"`
+    BelongDomain string `json:"belongDomain"`
+
+    NotDelete bool `json:"notDelete"`
+    NotChangeSign bool `json:"notChangeSign"`
+    NotChangePermissions bool `json:"notChangePermissions"`
+
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+}
+
+// 菜单
+type Menu struct {
+    ID             int64          `json:"id"`
+    Sort           int64          `json:"sort"`
+    Describe string `json:"describe"`
+    Status int64 `json:"status"`
+
+    FatherID       int64  `json:"parentID,optional"`
+    Name           string         `json:"name"`
+    Path           string         `json:"path"`
+    Title          string         `json:"title"`
+    Icon           string         `json:"icon"`
+    Redirect       string `json:"redirect"`
+    Superior       string         `json:"menuSuperior"`
+    Category       int64          `json:"menuCategory"`
+    Component      string         `json:"component"`
+    ComponentAlias string         `json:"componentAlias"`
+    MetaLink       string `json:"metaIsLink"`
+    Type           int64          `json:"menuType"`
+    IsLink         bool           `json:"isLink"`
+    IsHide         bool           `json:"isHide"`
+    IsKeepalive    bool           `json:"isKeepAlive"`
+    IsAffix        bool           `json:"isAffix"`
+    IsIframe        bool           `json:"isIframe"`
+    BtnPower       string         `json:"btnPower"`
+
+    IsOr        bool `json:"isOr"`
+    Policy []RolePolicy `json:"policy"`
+    SubPolicy []string `json:"subPolicy"`
+    Roles      []MenuRole `json:"roles"`
+}
+
+// 菜单
+type RoleMenu struct {
+    ID             int64          `json:"id"`
+    Sort           int64          `json:"sort"`
+    Describe string `json:"describe"`
+    Status int64 `json:"status"`
+
+    FatherID       int64  `json:"parentID,optional"`
+    Name           string         `json:"name"`
+    Path           string         `json:"path"`
+    Title          string         `json:"title"`
+    Icon           string         `json:"icon"`
+    Redirect       string `json:"redirect"`
+    Superior       string         `json:"menuSuperior"`
+    Category       int64          `json:"menuCategory"`
+    Component      string         `json:"component"`
+    ComponentAlias string         `json:"componentAlias"`
+    MetaLink       string `json:"metaIsLink"`
+    Type           int64          `json:"menuType"`
+    IsLink         bool           `json:"isLink"`
+    IsHide         bool           `json:"isHide"`
+    IsKeepalive    bool           `json:"isKeepAlive"`
+    IsAffix        bool           `json:"isAffix"`
+    IsIframe        bool           `json:"isIframe"`
+    BtnPower       string         `json:"btnPower"`
+}
+
+type UrlPath struct {
+    ID int64 `json:"id"`
+    Describe string `json:"describe"`
+    Path string `json:"path"`
+    Mode int64 `json:"mode"`
+    Status int64 `json:"status"`
+    Authentication bool         `json:"authentication"`
+    DoubleCheck bool `json:"doubleCheck"`
+    CorsMode       int64        `json:"corsMode"`
+    AdminMode      int64        `json:"adminMode"`
+    BusyMode int64 `json:"busyMode"`
+    BusyCount int64 `json:"busyCount"`
+    CaptchaMode int64 `json:"captchaMode"`
+
+    IsOr        bool `json:"isOr"`
+    Policy []RolePolicy `json:"policy"`
+    SubPolicy []string `json:"subPolicy"`
+    Method []string `json:"method"`
+    Roles      []MenuRole `json:"roles"`
+}
+
+type RoleUrlPath struct {
+    ID int64 `json:"id"`
+    Describe string `json:"describe"`
+    Path string `json:"path"`
+    Mode int64 `json:"mode"`
+    Status int64 `json:"status"`
+    Authentication bool         `json:"authentication"`
+    DoubleCheck bool `json:"doubleCheck"`
+    CorsMode       int64        `json:"corsMode"`
+    AdminMode      int64        `json:"adminMode"`
+    BusyMode int64 `json:"busyMode"`
+    BusyCount int64 `json:"busyCount"`
+    CaptchaMode int64 `json:"captchaMode"`
+}
+
+type WebsitePolicy {
+    ID int64 `json:"id"`
+    Sign string `json:"sign"`
+    Sort int64 `json:"sort"`
+    Name string `json:"name"`
+    Describe string `json:"describe"`
+    Status int64 `json:"status"`
+
+    Websites []LittleWebiste `json:"websites"`
+}
+
+type WebsiteLittlePolicy struct {
+    ID       int64         `json:"id"`
+    Sign     string        `json:"sign"`
+    Sort     int64         `json:"sort"`
+    Name     string        `json:"name"`
+    Describe string        `json:"describe"`
+    Status   int64         `json:"status"`
+}
+
+type Website {
+    ID       int64        `json:"id"`
+    UID string `json:"uid"`
+    Name string `json:"name"`
+    Describe string `json:"describe"`
+    KeyMap []LabelValueRecord `json:"keyMap"`
+    PubKey string `json:"pubkey"`
+    Agreement string `json:"agreement"`
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+
+    IP []WebsiteIP `json:"ip"`
+    Domain []WebsiteDomain `json:"domain"`
+
+    Policy []WebsiteLittlePolicy `json:"policy"`
+    UrlPath []WebsiteLittleUrlPath `json:"urlPath"`
+}
+
+type LittleWebiste {
+    ID       int64        `json:"id"`
+    UID string `json:"uid"`
+    Name string `json:"name"`
+    Describe string `json:"describe"`
+    KeyMap []LabelValueRecord `json:"keyMap"`
+    PubKey string `json:"pubkey"`
+    Agreement string `json:"agreement"`
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type WebsiteUrlPath struct {
+    ID int64 `json:"id"`
+    Describe string `json:"describe"`
+    Path string `json:"path"`
+    Mode int64 `json:"mode"`
+    Status int64 `json:"status"`
+
+    IsOr bool `json:"isOr"`
+    Policy []WebsiteLittlePolicy `json:"policy"`
+    Websites      []LittleWebiste `json:"websites"`
+    Method []string `json:"method"`
+}
+
+type WebsiteLittleUrlPath struct {
+    ID int64 `json:"id"`
+    Describe string `json:"describe"`
+    Path string `json:"path"`
+    Mode int64 `json:"mode"`
+    Status int64 `json:"status"`
+}
+
+type WebsiteIP {
+    ID        int64        `json:"id"`
+    IP        string       `json:"ip"`
+}
+
+type WebsiteDomain {
+    ID        int64        `json:"id"`
+    Domain        string       `json:"domain"`
+}
+
+type AdminDistribution {
+    Level int64 `json:"level"`
+    Pre int64 `json:"pre"`
+}
+
+type Announcement {
+    ID int64 `json:"id"`
+    Title string `json:"title"`
+    Content string `json:"content"`
+    StartAt int64 `json:"startAt"`
+    StopAt int64 `json:"stopAt"`
+    Sort int64 `json:"sort"`
+}
+
+type AdminAnnouncement {
+    ID int64 `json:"id"`
+    Title string `json:"title"`
+    Content string `json:"content"`
+    StartAt int64 `json:"startAt"`
+    StopAt int64 `json:"stopAt"`
+    Sort int64 `json:"sort"`
+}
+
+type LabelValueRecord {
+    Label string `json:"label"`
+    Value string `json:"value"`
+}
+
+type LabelInterfaceValueRecord {
+    Label string `json:"label"`
+    Value interface{} `json:"value"`
+}
+
+type Audit {
+    Content string `json:"content"`
+    From string `json:"from"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type AdminAudit {
+    UserID int64 `json:"userID"`
+    Content string `json:"content"`
+    From string `json:"from"`
+    FromID int64 `json:"fromID"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type WorkOrder {
+    OrderID string `json:"orderID"`
+    Title string `json:"title"`
+    From string `json:"from"`
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+    LastReplyAt int64 `json:"lastReplyAt"`
+    FinishAt int64 `json:"finishAt"`
+}
+
+type WorkOrderCommunicate {
+    ID int64 `json:"id"`
+    Content string `json:"content"`
+    From int64 `json:"from"`
+    CreateAt int64 `json:"createAt"`
+    File []WorkOrderCommunicateFile `json:"file"`
+}
+
+type WorkOrderCommunicateFile {
+    Fid string `json:"fid"`
+}
+
+type AdminWorkOrder {
+    ID int64 `json:"id"`
+    OrderID string `json:"orderID"`
+    UserID int64 `json:"userID"`
+    Title string `json:"title"`
+    From string `json:"from"`
+    FromID int64 `json:"fromID"`
+    Remark string `json:"remark"`
+    Status int64 `json:"status"`
+    CreateAt int64 `json:"createAt"`
+    LastReplyAt int64 `json:"lastReplyAt"`
+    FinishAt int64 `json:"finishAt"`
+}
+
+type AdminEmailMessage {
+    Email    string         `json:"email"`
+    Subject  string         `json:"subject"`
+    Content  string         `json:"content"`
+    Sender   string         `json:"sender"`
+    SenderId int64  `json:"senderIDd"`
+    Success  bool           `json:"success"`
+    ErrorMsg string `json:"errorMsg"`
+    CreateAt int64      `json:"createAt"`
+}
+
+type AdminFuwuhaoMessage {
+    OpenID   string         `json:"openID"`
+    Template string         `json:"template"`
+    Url      string         `json:"url"`
+    Val      []LabelInterfaceValueRecord        `json:"val"`
+    SenderId int64  `json:"senderID"`
+    Success  bool           `json:"success"`
+    ErrorMsg string `json:"errorMsg"`
+    CreateAt int64      `json:"createAt"`
+}
+
+type AdminSmsMessage {
+    Phone         string         `json:"phone"`
+    Sig           string         `json:"sig"`
+    Template      string         `json:"template"`
+    TemplateParam []LabelInterfaceValueRecord         `json:"templateParam"`
+    SenderId      int64  `json:"senderID"`
+    Success       bool           `json:"success"`
+    ErrorMsg      string `json:"errorMsg"`
+    CreateAt      int64      `json:"createAt"`
+}
+
+type AdminWxrobotMessage {
+    Webhook  string         `json:"webhook"`
+    Text     string         `json:"text"`
+    AtAll    bool           `json:"atAll"`
+    SenderId int64  `json:"senderId"`
+    Success  bool           `json:"success"`
+    ErrorMsg string `json:"errorMsg"`
+    CreateAt int64     `json:"createAt"`
+}
+
+type File {
+    Fid string `json:"fid"`
+    MediaType string `json:"mediaType"`
+}
+
+type Oauth2Record {
+    WebID int64 `json:"webID"`  // 要返回给用户
+    WebName string `json:"webName"`
+    IP string `json:"ip"`
+    Geo string `json:"geo"`
+    DeleteToken string `json:"deleteToken"`
+    IsLogin bool `json:"isLogin"`
+}
+
+type AdminOauth2Record {
+    UserID string `json:"userID"`
+    WebID int64 `json:"webID"`
+    WebName string `json:"webName"`
+    IP string `json:"ip"`
+    Geo string `json:"geo"`
+    Token string `json:"token"`
+    WebsiteUserToken string `json:"websiteUserToken"`
+    DeleteToken string `json:"deleteToken"`
+    IsLogin bool `json:"isLogin"`
+}
+
+type WebsiteEasy {
+    ID int64 `json:"id"`
+    Name string `json:"name"`
+}
+
+type AccessRecord {
+    Id                int64          `json:"id"`
+    RequestIdPrefix   string         `json:"request_id_prefix"`
+    RequestId   string         `json:"request_id"`
+    ServerName        string         `json:"server_name"`
+    UserId            int64  `json:"user_id"`
+    UserUid           string `json:"user_uid"`
+    UserToken         string `json:"user_token"`
+    RoleId            int64  `json:"role_id"`
+    RoleName          string `json:"role_name"`
+    RoleSign          string `json:"role_sign"`
+    WebId             int64  `json:"web_id"`
+    WebName           string `json:"web_name"`
+    RequestsWebId     int64  `json:"requests_web_id"`
+    RequestsWebName   string `json:"requests_web_name"`
+    Ip               string         `json:"ip"`
+    GeoCode           string         `json:"geo_code"`
+    Geo               string         `json:"geo"`
+    Scheme            string         `json:"scheme"`
+    Method            string         `json:"method"`
+    Host              string         `json:"host"`
+    Path              string         `json:"path"`
+    Query             string         `json:"query"`
+    ContentType       string         `json:"content_type"`
+    RequestsBody      string         `json:"requests_body"`
+    ResponseBody      string `json:"response_body"`
+    ResponseBodyError string `json:"response_body_error"`
+    RequestsHeader    string         `json:"requests_header"`
+    ResponseHeader    string `json:"response_header"`
+    StatusCode        int64  `json:"status_code"`
+    PanicError        string `json:"panic_error"`
+    Message           string `json:"message"`
+    UseTime           int64  `json:"use_time"`
+    CreateAt          int64      `json:"create_at"`
+    StartAt           int64   `json:"start_at"`
+    EndAt             int64   `json:"end_at"`
+}
+
+type TokenRecord {
+    TokenType int64        `json:"tokenType"`
+    Token     string       `json:"token"`
+    Type      int64        `json:"type"`
+    Data      string       `json:"data"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type Oauth2LoginRecord {
+    WebId     int64        `json:"webID"`  // 要返回给用户
+    WebName   string       `json:"webName"`
+    Ip        string       `json:"ip"`
+    Geo       string       `json:"geo"`
+    GeoCode   string       `json:"geoCode"`
+    LoginTime int64        `json:"loginTime"`
+}
+
+type Oauth2Banned {
+    WebId     int64        `json:"webID"`  // 要返回给用户
+    WebName   string       `json:"webName"`
+    AllowLogin  bool         `json:"allowLogin"`
+    AllowDefray bool         `json:"allowDefray"`
+    AllowMsg    bool         `json:"allowMsg"`
+}
+
+type AdminOauth2LoginRecord {
+    UserID int64 `json:"userID"`
+    WebId     int64        `json:"webID"`
+    WebName   string       `json:"webName"`
+    Ip        string       `json:"ip"`
+    Geo       string       `json:"geo"`
+    GeoCode   string       `json:"geoCode"`
+    LoginTime int64        `json:"loginTime"`
+}
+
+type AdminOauth2Banned {
+    UserID int64 `json:"userID"`
+    WebId     int64        `json:"webID"`
+    WebName   string       `json:"webName"`
+    AllowLogin  bool         `json:"allowLogin"`
+    AllowDefray bool         `json:"allowDefray"`
+    AllowMsg    bool         `json:"allowMsg"`
+}
+
+type TokenIPGeo {
+    TokenType int64 `json:"tokenType"`
+    IP string `json:"ip"`
+    Geo string `json:"geo"`
+    NowIP string `json:"nowIP"`
+    NowGeo string `json:"nowGeo"`
+
+    Father UserEasy `json:"father"`
+
+    WebID int64 `json:"webID"`
+    WebName string `json:"webName"`
+
+    IsLogin bool `json:"isLogin"`  // 是否在线
+    DeleteToken string `json:"deleteToken"`
+
+    IsSelf bool `json:"isSelf"`  // 是否当前用户
+}
+
+type AdminTokenIPGeo {
+    TokenType int64 `json:"tokenType"`
+    UserID int64 `json:"userID"`
+    IP string `json:"ip"`
+    Geo string `json:"geo"`
+    NowIP string `json:"nowIP"`
+    NowGeo string `json:"nowGeo"`
+
+    Father UserEasy `json:"father"`
+    FatherToken string `json:"fatherToken"`
+
+    WebID int64 `json:"webID"`
+    WebName string `json:"webName"`
+
+    IsLogin bool `json:"isLogin"`
+    SubType string `json:"subType"`
+    Token string `json:"token"`
+    DeleteToken string `json:"deleteToken"`
+}
+
+type AdminSonTokenIPGeo {
+    UserID string `json:"userID"`
+    IP string `json:"ip"`
+    Geo string `json:"geo"`
+    NowIP string `json:"nowIP"`
+    NowGeo string `json:"nowGeo"`
+    User UserEasy `json:"user"`  // 不要UserEsay
+    SubType string `json:"subType"`
+    IsLogin bool `json:"isLogin"`
+    Token string `json:"token"`
+    DeleteToken string `json:"deleteToken"`
+}
+
+type BackRecord struct {
+    User        UserEasy `json:"user"`
+    Subject     string        `json:"subject"`
+    BackID      string        `json:"backID"`
+    Get         int64         `json:"get"`
+    Balance     int64 `json:"balance"`
+    CanWithdraw bool          `json:"canWithdraw"`
+    Supplier    string        `json:"supplier"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type AdminBackRecord struct {
+    WalletID    int64         `json:"walletID"`
+    UserID      int64         `json:"userID"`
+    User        UserEasy `json:"user"`
+    Subject     string        `json:"subject"`
+    BackID      string        `json:"backID"`
+    Get         int64         `json:"get"`
+    Balance     int64 `json:"balance"`
+    CanWithdraw bool          `json:"canWithdraw"`
+    SupplierID  int64         `json:"supplierID"`
+    Supplier    string        `json:"supplier"`
+    Remark string `json:"remark"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type WalletRecord struct {
+    ID int64 `json:"id"`
+    User UserEasy `json:"user"`
+    Type              int64        `json:"type"`
+    FundingId         string       `json:"fundingID"`
+    Reason            string       `json:"reason"`
+
+    Balance           int64        `json:"balance"`
+    WaitBalance int64 `json:"waitBalance"`
+    Cny int64 `json:"cny"`
+    NotBilled         int64        `json:"notBilled"`
+    Billed            int64        `json:"billed"`
+    HasBilled         int64        `json:"hasBilled"`
+    Withdraw          int64        `json:"withdraw"`
+    WaitWithdraw int64 `json:"waitWithdraw"`
+    NotWithdraw       int64        `json:"notWithdraw"`
+    HasWithdraw       int64        `json:"hasWithdraw"`
+
+    BeforeBalance     int64        `json:"beforeBalance"`
+    BeforeWaitBalance int64 `json:"beforeWaitBalance"`
+    BeforeCny int64 `json:"beforeCny"`
+    BeforeNotBilled   int64        `json:"beforeNotBilled"`
+    BeforeBilled      int64        `json:"beforeBilled"`
+    BeforeHasBilled   int64        `json:"beforeHasBilled"`
+    BeforeWithdraw    int64        `json:"beforeWithdraw"`
+    BeforeWaitWithdraw int64 `json:"beforeWaitWithdraw"`
+    BeforeNotWithdraw int64        `json:"beforeNotWithdraw"`
+    BeforeHasWithdraw int64        `json:"beforeHasWithdraw"`
+
+    CreateAt int64 `json:"createAt"`
+}
+
+type AdminWalletRecord struct {
+    ID int64 `json:"id"`
+    WalletID int64 `json:"walletID"`
+    UserID int64 `json:"userID"`
+    User UserEasy `json:"user"`
+    Type              int64        `json:"type"`
+    FundingId         string       `json:"funding_id"`
+    Reason            string       `json:"reason"`
+
+    Balance           int64        `json:"balance"`
+    Cny               int64        `json:"cny"`
+    NotBilled         int64        `json:"notBilled"`
+    Billed            int64        `json:"billed"`
+    HasBilled         int64        `json:"hasBilled"`
+    Withdraw          int64        `json:"withdraw"`
+    NotWithdraw       int64        `json:"notWithdraw"`
+    HasWithdraw       int64        `json:"hasWithdraw"`
+
+    BeforeBalance     int64        `json:"beforeBalance"`
+    BeforeCny         int64        `json:"beforeCny"`
+    BeforeNotBilled   int64        `json:"beforeNotBilled"`
+    BeforeBilled      int64        `json:"beforeBilled"`
+    BeforeHasBilled   int64        `json:"beforeHasBilled"`
+    BeforeWithdraw    int64        `json:"beforeWithdraw"`
+    BeforeNotWithdraw int64        `json:"beforeNotWithdraw"`
+    BeforeHasWithdraw int64        `json:"beforeHasWithdraw"`
+
+    Remark string `json:"remark"`
+    CreateAt int64 `json:"createAt"`
+}
+
+type WebsiteFunding struct {
+    ID int64 `json:"id"`
+    WebID       int64        `json:"webID"`
+    WebName string `json:"webName"`
+    Type        int64        `json:"type"`
+    FundingId   string       `json:"fundingID"`
+    Profit      int64        `json:"profit"`
+    Expenditure int64        `json:"expenditure"`
+    Delta int64 `json:"delta"`
+    Remark string `json:"remark"`
+    PayAt       int64    `json:"payAt"`
+}
+
+type WebsiteFundingYearSum struct {
+    WebID       int64        `json:"webID"`
+    WebName string `json:"webName"`
+    Profit      int64        `json:"profit"`
+    Expenditure int64        `json:"expenditure"`
+    Delta int64 `json:"delta"`
+    Month int64 `json:"month"`
+    Day int64 `json:"day"`
+}
+
+type WithdrawRecord struct {
+    User UserEasy `json:"user"`
+    WithdrawID       string         `json:"withdrawID"`
+    WithdrawWay      string         `json:"withdrawWay"`
+    Name             string         `json:"name"`
+    AlipayLoginId    string `json:"alipayLoginID"`
+    WechatpayNickName  string `json:"wechatpayNickName"`
+    Cny              int64          `json:"cny"`
+    Balance          int64  `json:"balance"`
+    Status           int64          `json:"status"`
+    WithdrawAt       int64      `json:"withdrawAt"`
+    PayAt            int64   `json:"payAt"`
+}
+
+type AdminWithdrawRecord struct {
+    UserID int64 `json:"userID"`
+    WalletID int64 `json:"walletID"`
+    User UserEasy `json:"user"`
+    WithdrawID       string         `json:"withdrawID"`
+    WithdrawWay      string         `json:"withdrawWay"`
+    Name             string         `json:"name"`
+    AlipayLoginId    string `json:"alipayLoginID"`
+    WechatpayNickName  string `json:"wechatpayNickName"`
+    WechatpayOpenId  string `json:"wechatpayOpenID"`
+    WechatpayUnionId string `json:"wechatpayUnionID"`
+    Cny              int64          `json:"cny"`
+    Balance          int64  `json:"balance"`
+    OrderId          string `json:"orderID"`
+    PayFundOrderId   string `json:"payFundOrderID"`
+    Remark           string         `json:"remark"`
+    Status           int64          `json:"status"`
+    WithdrawAt       int64      `json:"withdrawAt"`
+    PayAt            int64   `json:"payAt"`
+}
+
+type Application {
+    Name        string       `json:"name"`
+    WebName string `json:"webName"`
+    WebUID string `json:"webUid"`
+    Url string `json:"url"`
+    Icon string `json:"icon"`
+    Sort int64 `json:"sort"`
+}
+
+type AdminApplication {
+    ID int64 `json:"id"`
+    Name        string       `json:"name"`
+    Describe    string       `json:"describe,optional"`
+    WebID int64 `json:"webID"`
+    WebName string `json:"webName"`
+    WebUID string `json:"webUid"`
+    Url string `json:"url"`
+    Icon string `json:"icon"`
+    Sort int64 `json:"sort"`
+    Status      int64        `json:"status"`
+}
+
+type DiscountQuota {
+    Amount      int64 `json:"amount,optional"`
+    CanWithdraw bool  `json:"canWithdraw,optional"`
+
+    Type     int64 `json:"type,optional"`     // RechargeSend=>1   FulIDiscount=>2   FullPer=>3
+    Bottom   int64 `json:"bottom,optional"`   //满足的金额要求
+    Send     int64 `json:"send,optional"`     //送的额度
+    Discount int64 `json:"discount,optional"` //减的额度
+    Pre      int64 `json:"pre,optional"`      //打折
+}

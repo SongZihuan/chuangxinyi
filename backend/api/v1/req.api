@@ -1,0 +1,1653 @@
+syntax = "v1"
+
+import "model.api"
+
+type SendPhoneCodeReq struct {
+    Phone string `json:"phone" cs-checker:"PhoneString"`// 手机号
+}
+
+type CheckPhoneCodeReq struct {
+    Code  string `json:"code" cs-regex:"[0-9a-zA-Z]{6,8}"` // 验证码
+    Phone string `json:"phone" cs-checker:"PhoneString"`// 手机号
+    Type string `json:"type" cs-max:"30"`  // 申请Token的类型（Login, PhoneCheck）
+}
+
+type SendEmailCodeReq struct {
+    Email string `json:"email" cs-checker:"EmailString"`// 邮箱
+}
+
+type StartFackCheckReq struct {
+    Name string `json:"name" cs-checker:"ChineseNameString"`
+    ID string `json:"id" cs-checker:"ChineseIDCardString"`
+}
+
+type CheckEmailCodeReq struct {
+    Code  string `json:"code" cs-regex:"[0-9a-zA-Z]{6,8}"` // 验证码
+    Email string `json:"email" cs-checker:"EmailString"`// 邮箱
+    Type string `json:"type" cs-max:"30"`  // 申请Token的类型（Login, EmailCheck）
+}
+
+type CheckPasswordReq struct {
+    UserID string `json:"userID" cs-max:"100"`// 用户ID（手机号、邮箱、用户名、用户UUID）
+    PasswordHash  string `json:"passwordHash" cs-max:"100"` // 密码
+    Type string `json:"type" cs-max:"30"`  // 申请Token的类型（Login）
+}
+
+type Login2FACheckReq struct {
+    LoginToken string `json:"token" cs-max:"50"`// 二次验证准token
+    Code  string `json:"code,optional" cs-zero:"ignore" cs-regex:"[0-9]{6}"` // 2FA
+    RememberHour int64 `json:"rememberHour,optional" ci-zero:"ignore" ci-min:"0" ci-max:"336"`
+    PassToken string `json:"passToken,optional" cs-zero:"ignore" cs-max:"50"`
+}
+
+type CheckLoginTokenReq struct {
+    Token string `json:"token" cs-max:"50"`
+}
+
+type CheckPhoneTokenReq struct {
+    Token string `json:"token" cs-max:"50"`
+    Phone string `json:"phone" cs-checker:"PhoneString"`
+}
+
+type CheckEmailTokenReq struct {
+    Token string `json:"token" cs-max:"50"`
+    Email string `json:"email" cs-checker:"EmailString"`
+}
+
+type CheckIDCardTokenReq struct {
+    Token string `json:"token" cs-max:"50"`
+    Name string `json:"name" cs-checker:"ChineseNameString"`
+    ID string `json:"id" cs-checker:"ChineseIDCardString"`
+}
+
+type CheckCompanyTokenReq struct {
+    Token string `json:"token" cs-max:"50""`
+    Name string `json:"name" cs-checker:"ChineseNameString"`
+    ID string `json:"id" cs-checker:"ChineseIDCardString"`
+    CompanyName string `json:"companyName" cs-checker:"ChineseCompanyNameString"`
+    CompanyID string `json:"companyID" cs-checker:"ChineseCompanyIDString"`
+}
+
+type CheckFaceTokenReq struct {
+    Token string `json:"token" cs-max:"50"`
+    Name string `json:"name" cs-checker:"ChineseNameString"`
+    ID string `json:"id" cs-checker:"ChineseIDCardString"`
+}
+
+type CheckSecondFAReq struct {
+    Code string `json:"code" cs-regex:"[0-9]{6}"`
+    Token string `json:"token" cs-max:"50"`
+}
+
+type CreateRoleReq {
+    Describe string                 `json:"describe,optional" cs-zero:"ignore" cs-max:"100"`// 描述
+    Name     string                 `json:"name" cs-max:"10" cs-min:"2"`
+    Sign string `json:"sign" cs-max:"10" cs-min:"2"`
+    NotDelete bool `json:"notDelete"`
+    NotChangeSign bool `json:"notChangeSign"`
+    NotChangePermissions bool `json:"notChangePermissions"`
+    Status int64 `json:"status" ci-checker:"RoleStatus"`
+    Belong int64 `json:"belong,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+}
+
+type UpdateRoleReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Describe string                 `json:"describe,optional" cs-zero:"ignore" cs-max:"100"`// 描述
+    Name     string                 `json:"name" cs-max:"10"`
+    Sign string `json:"sign" cs-max:"10"`
+    Status int64 `json:"status" cs-checker:"RoleStatus"`
+    Belong int64 `json:"belong,optional" cs-zero:"notcheck" cs-checker:"WebIDNotCenter"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+}
+
+type CreateMenuReq {
+    Describe string `json:"describe,optional" cs-zero"ignore" cs-max:"100"`
+    FatherID       int64  `json:"parentID,optional" ci-zero:"ignore" ci-min:"10000"`
+    Name           string         `json:"name" cs-max:"10"`
+    Path           string         `json:"path" cs-max:"100"`
+    Title          string         `json:"title" cs-max:"100"`
+    Icon           string         `json:"icon" cs-max:"100"`
+    Redirect       string `json:"redirect,optional" cs-zero:"ignore" cs-max:"100"`
+    Superior       string         `json:"menuSuperior,optional" cs-zero"ignore" cs-max:"100"`
+    Category       int64          `json:"menuCategory"`
+    Component      string         `json:"component" cs-max:"100"`
+    ComponentAlias string         `json:"componentAlias" cs-max:"100"`
+    MetaLink       string `json:"metaIsLink,optional" cs-zero:"ignore" cs-max:"100"`
+    Type           int64          `json:"menuType" ci-must:"1"`
+    IsLink         bool           `json:"isLink"`
+    IsHide         bool           `json:"isHide"`
+    IsKeepalive    bool           `json:"isKeepAlive"`
+    IsAffix        bool           `json:"isAffix"`
+    IsIframe        bool           `json:"isIframe"`
+    BtnPower string `json:"btnPower" cs-max:"100"`
+    Status int64 `json:"status" ci-checker:"MenuStatus"`
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+    SubPolicy []string `json:"subPolicy,optional" csl-zero:"notcheck" csl-checker:"SubPermissionSlice" csl-max:"20"`
+}
+
+type MenuUpdateReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Describe string `json:"describe,optional" cs-zero"ignore" cs-max:"100"`
+    FatherID       int64  `json:"parentID,optional" ci-zero:"ignore" ci-min:"10000"`
+    Name           string         `json:"name" cs-max:"10"`
+    Path           string         `json:"path" cs-max:"100"`
+    Title          string         `json:"title" cs-max:"100"`
+    Icon           string         `json:"icon" cs-max:"100"`
+    Redirect       string `json:"redirect,optional" cs-zero:"ignore" cs-max:"100"`
+    Superior       string         `json:"menuSuperior,optional" cs-zero"ignore" cs-max:"100"`
+    Category       int64          `json:"menuCategory"`
+    Component      string         `json:"component" cs-max:"100"`
+    ComponentAlias string         `json:"componentAlias" cs-max:"100"`
+    MetaLink       string `json:"metaIsLink,optional" cs-zero:"ignore" cs-max:"100"`
+    Type           int64          `json:"menuType" ci-must:"1"`
+    IsLink         bool           `json:"isLink"`
+    IsHide         bool           `json:"isHide"`
+    IsKeepalive    bool           `json:"isKeepAlive"`
+    IsAffix        bool           `json:"isAffix"`
+    IsIframe        bool           `json:"isIframe"`
+    BtnPower string `json:"btnPower" cs-max:"100"`
+    Status int64 `json:"status" ci-checker:"MenuStatus"`
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+    SubPolicy []string `json:"subPolicy,optional" csl-zero:"notcheck" csl-checker:"SubPermissionSlice" csl-max:"20"`
+}
+
+type PageReq {
+    Page int64 `form:"page,optional,default=1" ci-min:"0"`
+    PageSize int64 `form:"pagesize,optional,default=20" ci-min:"1" ci-max:"1000"`
+}
+
+type TimeReq {
+    StartTime int64 `form:"starttime,optional" ci-min:"0"`
+    EndTime int64 `form:"endtime,optional" ci-min:"0"`
+}
+
+type TimeWithTypeReq {
+    TimeReq
+    TimeType int64 `form:"timetype,optional,default=1" ci-checker:"DBTimeType"`
+}
+
+type MoveReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    IsUp bool `json:"isUp,optional"`
+}
+
+type DeleteReq {
+    ID int64 `json:"id" ci-min:"10000"`
+}
+
+type UserUpdatePasswordReq {
+    NewPasswordHash string `json:"newPasswordHash,optional" cs-max:"100"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type UserUpdateUserNameReq {
+    UserName string `json:"userName,optional" cs-max:"30"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type UserUpdatePhoneReq {
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+}
+
+type UserUpdateEmailReq {
+    EmailToken string `json:"emailToken,optional" cs-max:"50"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type UserUpdateWeChatReq {
+    WeChatToken string `json:"wechatToken,optional" cs-max:"50"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type UserUpdateWXRobotReq {
+    Webhook string `json:"webhook,optional" cs-zero:"notcheck" cs-checker:"HttpString" cs-max:"200"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type Delete2FAWithSecretReq {
+    Code string `json:"code" cs-regex:"[0-9]{6}"`
+}
+
+type Delete2FAReq {
+}
+
+type Bind2FAReq {
+    Code string `json:"code" cs-regex:"[0-9]{6}"`
+    Secret string `json:"secret" cs-regex:"[a-zA-Z0-9]+" cs-min:"30"`
+}
+
+type RegisterReq {
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+    InviteID string `json:"inviteID,optional"`
+}
+
+type LoginReq {
+    DomainUID string `json:"domainUID" cs-checker:"UUIDString"`
+}
+
+type UploadUserInfoByJson {
+    UserName string `json:"userName" cs-checker:"ChineseNameString"`
+    UserIDCard string `json:"userIDCard" cs-checker:"ChineseIDCardString"`
+}
+
+type UploadCompanyInfoByJson {
+    LegalPersonName string `json:"legalPersonName" cs-checker:"ChineseNameString"`
+    LegalPersonIDCard string `json:"legalPersonIDCard" cs-checker:"ChineseIDCardString"`
+    CompanyName string `json:"companyName" cs-checker:"ChineseCompanyNameString"`
+    CompanyID string `json:"companyID" cs-checker:"ChineseCompanyIDString"`
+}
+
+type CheckWechatCodeReq struct {
+    Code  string `json:"code" cs-max:"20"` // 验证码
+    Type string `json:"type" cs-max:"50"`  // 申请Token的类型（Login, WechatCode）
+}
+
+type CheckFuwuhaoCodeReq struct {
+    Code  string `json:"code" cs-max:"20"` // 验证码
+    Type string `json:"type" cs-max:"50"`  // 申请Token的类型（Login, WechatCode）
+}
+
+type CheckFaceReq {
+    CertifyID string `json:"certifyID" cs-max:"100"`
+}
+
+type SecondFACheckReq {
+    Token string `json:"token" cs-max:"50"`
+    UserID string `json:"userID" cs-max:"100"`
+}
+
+type AddWebsiteReq {
+    Name string `json:"name" cs-max:"20"`
+    Describe string `json:"describe,optional" cs-zero"ignore" cs-max:"100"`
+    KeyMap []LabelValueRecord `json:"keyMap" cm-checker:"WebsiteKeyMap"`
+    PubKey string `json:"pubkey" cs-max:"1000"`
+    Agreement string `json:"agreement" cs-max:"6000"`
+    Policy []string `json:"policy,optional" csl-checker"WebsitePermissionSlice"`
+    Status int64 `json:"status" ci-checker:"WebsiteStatus"`
+}
+
+type UpdateWebsiteReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Name string `json:"name" cs-max:"20"`
+    Describe string `json:"describe,optional" cs-zero"ignore" cs-max:"100"`
+    KeyMap []LabelValueRecord `json:"keyMap" cm-checker:"WebsiteKeyMap"`
+    Agreement string `json:"agreement" cs-max:"6000"`
+    Policy []string `json:"policy,optional" csl-checker"WebsitePermissionSlice"`
+    Status int64 `json:"status" ci-checker:"WebsiteStatus"`
+}
+
+type ChangeWebsiteSecretReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    PubKey string `json:"pubkey" cs-max:"1000"`
+}
+
+type AddWebsiteIPReq {
+    WebsiteID int64 `json:"websiteID"`
+    IP string `json:"ip" cs-checker:"IPOrCIDRString"`
+}
+
+type GetWebsiteIPListReq {
+    PageReq
+    WebsiteID int64 `form:"websiteid"`
+}
+
+type GetTotpUrlReq {
+    Phone string `form:"phone" cs-checker:"PhoneString"`
+}
+
+type UserUpdateNicknameReq {
+    NickName string `json:"nickname,optional" cs-max:"20"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type HeaderReq {
+    Header string `form:"header,optional" cs-zero:"notcheck" cs-checker:"UUIDString"`
+}
+
+type UserHeaderReq {
+    UserUID string `form:"id,optional" cs-zero:"notcheck" cs-checker:"UUIDString"`
+}
+
+type UserUpdateSigninReq {
+    Signin bool `json:"signin"`
+}
+
+type UserUpdateHomePageReq {
+    IsDelete bool `json:"isDelete"`
+    Introduction string `json:"introduction,optional" cs-zero:"notcheck" cs-max:"6000"` // 用户简介
+    Address string `json:"address,optional" cs-zero:"notcheck" cs-max:"200"`           // 联系地址
+    Phone string `json:"phone,optional" cs-zero:"notcheck"`               // 联系电话
+    Email string `json:"email,optional" cs-zero:"notcheck"`               // 联系邮件
+    WeChat string `json:"wechat,optional" cs-zero:"notcheck"`             // 微信号
+    QQ string `json:"qq,optional" cs-zero:"notcheck"`                     // QQ号
+    Sex string `json:"sex,optional" cs-zero:"notcheck" cs-max:"10"`                   // 是否男性
+    Link string `json:"link,optional" cs-zero:"notcheck" cs-max"200" cs-checker:"HttpString"`                 // 外部连接
+    Company string `json:"company,optional" cs-zero:"notcheck" cs-max:"50"`         // 行业
+    Industry string `json:"industry,optional" cs-zero:"notcheck" cs-max:"50"`         // 行业
+    Position string `json:"position,optional" cs-zero:"notcheck" cs-max:"50"`         // 职位
+}
+
+type UserUpdateTokenExpirationReq {
+    TokenExpiration int64 `json:"tokenExpiration" ci-min:"900" ci-max:"172800"`
+}
+
+type UpdateLoginControllerReq {
+    AllowPhone bool `json:"allowPhone"`
+    AllowEmail bool `json:"allowEmail"`
+    AllowPassword bool `json:"allowPassword"`
+    AllowWeChat bool `json:"allowWeChat"`
+    AllowSecondFA bool `json:"allowSecondFA"`
+}
+
+type AlipayReq {
+    CNY int64 `json:"cny" ci-min:"0"`  // 单位：分
+    PayMode int64 `json:"payMode,optional" ci-must:"2"`
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+    ReturnURL string `json:"returnUrl" cs-max:"500"`
+}
+
+type AlipayWapReq {
+    CNY int64 `json:"cny" ci-min:"0"`  // 单位：分
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+    ReturnURL string `json:"returnUrl" cs-max:"500"`
+    QuiteUrl string `json:"quiteUrl" cs-max:"500"`
+}
+
+type WechatPayReq {
+    CNY int64 `json:"cny" ci-min:"0"`  // 单位：分
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type WechatPayWapReq {
+    CNY int64 `json:"cny" ci-min:"0"`  // 单位：分
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+    H5Type string `json:"h5Type" cs-regex:"(Android|iOS|Wap)"`
+}
+
+type WechatPayJsAPIReq {
+    CNY int64 `json:"cny" ci-min:"0"`  // 单位：分
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type RegisterSonReq {
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+    NewWallet bool `json:"newWallet,optional"`
+}
+
+type AdminRegisterSonReq {
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+    RoleID int64 `json:"roleID,optional"`
+    NewWallet bool `json:"newWallet,optional"`
+}
+
+type GetSonTokenReq {
+    ID string `json:"id"`
+}
+
+type NewPayReq {
+    Cny int64 `json:"cny" ci-min:"0"`
+    PayWay string `json:"payWay" cs-min:"2"`
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type GetPayListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"PayStatus"`
+}
+
+type GetDefrayInfoReq {
+    Token string `form:"token" cs-max:"100"`
+}
+
+type DefrayReq {
+    Token string `json:"token" cs-max:"100"`
+    CouponsID int64 `json:"couponsID,optional" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type CreateDefrayReq {
+    OwnerID string `json:"ownerID,optional" cs-zero:"ignore" cs-max:"100"`
+    Subject   string `json:"subject" cs-max:"200"`   // 标题
+    Price     int64  `json:"price" ci-min:"0"`     // 价格
+    Quantity  int64  `json:"quantity" ci-min:"1"`  // 数量
+    UnitPrice int64  `json:"unitPrice" ci-min:"0"` // 单价
+    Describe  string  `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`  // 描述
+    InvitePre          int64  `json:"invitePre,optional" ci-min:"0"`
+    DistributionLevel1 int64  `json:"distributionLevel1,optional" ci-minL"0"`
+    DistributionLevel2 int64  `json:"distributionLevel2,optional" ci-min:"0"`
+    DistributionLevel3 int64  `json:"distributionLevel3,optional" ci-min:"0"`
+    CanWithdraw bool `json:"canWithdraw"`
+    ReturnURL string `json:"returnURL" cs-checker:"HttpString" cs-max:"200"`
+    MustSelfDefray bool `json:"mustSelfDefray"`
+    ReturnDayLimit int64 `json:"returnDayLimit"`
+    ExpireTime int64 `json:"expireTime"`
+}
+
+type CreateBackReq {
+    UserID string `json:"userID" cs-max:"100"`
+    Get int64 `json:"get" ci-min:"0"`
+    Reason string `json:"reason" cs-max:"50"`
+    Subject string `json:"subject" cs-max:"200"`
+    CanWithdraw bool `json:"canWithdraw"`
+}
+
+type QueryDefrayReq {
+    TradeID string `form:"tradeid" cs-max:"100"`
+}
+
+type ReturnDefrayReq {
+    TradeID string `json:"tradeID" cs-max:"100"`
+    Reason string `json:"reason" cs-max:"50"`
+    Must bool `json:"must"`
+}
+
+type GetDefrayListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"DefrayStatus"`
+    SupplierID int64 `form:"supplierID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type GetDefrayOwnerListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"DefrayStatus"`
+    SupplierID int64 `form:"supplierID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type GetBackListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    SupplierID int64 `form:"supplierID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type GetWithdrawListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"WithdrawStatus"`
+}
+
+type GetWalletRecordListReq {
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `form:"type,optional" ci-checker:"WalletRecordType"`
+    FundingID string `form:"fundingID,optional" cs-zero:"notcheck" cs-checker:"UUIDString"`
+    Src string `form:"src,optional"`
+}
+
+type AdminGetWalletRemarkUpdate {
+    ID int64 `json:"id" ci-min:"10000"`
+    Remark string `json:"remark" cs-max:"60000"`
+}
+
+type GetMessageListReq {
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    JustRead bool `form:"justRead,optional"`
+    SenderID int64 `form:"senderID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type ReadMessageReq {
+    ID int64 `json:"id" ci-min:"10000"`
+}
+
+type GetHomePageReq {
+    UserID string `form:"userID" cs-checker:"UUIDString"`
+}
+
+type UserUpdateTitleReq {
+    Name   string `json:"name,optional" cs-zero:"ignore" cs-max:"50"`       // 姓名，公司名
+    TaxID string `json:"taxID,optional" cs-zero:"ignore" cs-max:"30"`       // 税号，身份证号
+    BankID string `json:"bankID,optional" cs-zero:"ignore" cs-max:"30"`     // 银行卡号
+    Bank   string `json:"bank,optional" cs-zero:"ignore" cs-max:"50"`       // 开户行
+}
+
+type UserUpdateAddressReq {
+    Name      string `json:"name" cs-zero:"notcheck" cs-max:"10"`
+    Phone     string `json:"phone,optional" cs-zero:"notcheck" cs-checker:"PhoneString"`
+    Email     string `json:"email,optional" cs-zero:"notcheck" cs-checker:"EmailString"`
+    Province  string `json:"province,optional" cs-zero:"notcheck" cs-max:"20"`
+    City      string `json:"city,optional" cs-zero:"notcheck" cs-max:"20"`
+    District  string `json:"district,optional" cs-zero:"notcheck" cs-max:"20"`
+    Area []string `json:"area,optional" csl-zero:"notcheck" csl-length:"4"`
+    Address   string `json:"address,optional" cs-zero:"notcheck" cs-max:"100"`
+}
+
+type InvoiceReq {
+    Amount int64 `json:"amount" ci-min:"0"`
+    Type int64 `json:"type"`  // 1-个人普票 2-企业普票 3-企业专票
+}
+
+type InvoiceReturnReq {
+    InvoiceID string `json:"invoiceID" cs-max:"100"`
+}
+
+type GetInvoiceReq {
+    InvoiceID string `form:"invoiceID" cs-max:"100"`
+}
+
+type DownloadInvoiceReq {
+    InvoiceID string `form:"invoiceID" cs-max:"100"`
+}
+
+type AdminDownloadInvoiceReq {
+    InvoiceID string `form:"invoiceID" cs-max:"100""`
+}
+
+type GetDiscountList {
+    PageReq
+    Src string `form:"src,optional"`
+}
+
+type GetInvoiceListReq {
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `form:"type,optional" ci-checker:"InvoiceType"`
+    Status []int64 `form:"status,optional" ci-checker:"InvoiceStatus"`
+    Src string `form:"src,optional"`
+}
+
+type QueryTradeReq {
+    TradeID string `form:"tradeid" cs-max:"100"`
+}
+
+type QueryRefundReq {
+    TradeID string `form:"tradeid" cs-max:"100"`
+}
+
+type QueryWithdrawReq {
+    TradeID string `form:"tradeid" cs-max:"100"`
+}
+
+type JoinDiscountReq {
+    DiscountID int64 `json:"discountID" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type SendSMSReq {
+    UserID string `json:"userID"`
+    Sig string `json:"sig" cs-max:"20"`
+    Template string `json:"template" cs-max:"50"`
+    data []LabelValueRecord `json:"data" c-ignore:"true"`
+}
+
+type SendEmailReq {
+    UserID string `json:"userID"`
+    Subject string `json:"subject" cs-max:"200"`
+    Content string `json:"content" cs-max:"200"`
+}
+
+type SendMsgReq {
+    UserID string `json:"userID"`
+    Title string `json:"title" cs-max:"20"`
+    Content string `json:"content" cs-max:"100"`
+    SenderLink string `json:"senderLink,optional" cs-zero:"notcheck" cs-max:"200" cs-checker:"HttpString"`
+}
+
+type SendWXRobotReq {
+    UserID string `json:"userID"`
+    Content string `json:"content" cs-max:"100"`
+}
+
+type SendFuwuhaoReq {
+    UserID string `json:"userID"`
+    TemplateID string `json:"templateID" cs-max:"100"`
+    Url string `json:"url,optional" cs-zero:"notcheck" cs-max:"200" cs-checker:"HttpString"`
+    Val []LabelValueRecord `json:"val" c-ignore:"true"`
+}
+
+type SendAuditReq {
+    UserID string `json:"userID"`
+    Content string `json:"content" cs-max:"200"`
+}
+
+type SendWorkOrderFile {
+    FileName string `json:"fileName" c-max:"20"`
+    File string `json:"file" c-ignore:"true"`
+}
+
+type SendWorkOrder {
+    UserID string `json:"userID"`
+    Title string `json:"title" cs-max:"20"`
+    Content string `json:"content" cs-max:"100"`
+    File []SendWorkOrderFile `json:"file"`
+}
+
+type GetFileReq {
+    Fid string `form:"fid" cs-max:"200"`
+    Download bool `form:"download,optional"`
+}
+
+type UpdateFooterReq {
+    ICP1 string `json:"icp1" cs-max:"50"`
+    ICP2 string `json:"icp2" cs-max:"50"`
+    Gongan string  `json:"gongan" cs-max:"50"`
+    Copyright string `json:"copyright" cs-max:"50"`
+}
+
+type AdminGetUserReq {
+    ID int64 `form:"id,optional" ci-min:"10000"`
+    UID string `form:"uid,optional" cs-zero:"ignore" cs-max:"200"`
+}
+
+type AdminGetUserSonReq {
+    AdminGetUserReq
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+type GetSonTree {
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+type AdminUpdateUserReq {
+    ID int64 `json:"id,optional" ci-zero:"ignore" ci-min:"10000"`
+    UID string `json:"uid,optional" cs-zero:"notcheck" cs-max:"200"`
+}
+
+type AdminUpdateUserFormReq {
+    ID int64 `form:"id,optional" ci-zero:"ignore" ci-min:"10000"`
+    UID string `form:"uid,optional" cs-zero:"notcheck" cs-max:"200"`
+}
+
+type AdminGetMessageListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    JustNotRead bool `form:"justNotRead,optional"`
+    SenderID int64 `form:"senderID,optional" ci-zero:"notcheck" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetCouponsListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `json:"type,optional" ci-checker:"CouponsType"`
+}
+
+type AdminGetInvoiceListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `form:"type,optional" ci-checker:"InvoiceType"`
+    Status []int64 `form:"status,optional" ci-checker:"InvoiceStatus"`
+    Src string `form:"src,optional"`
+}
+
+type AdminGetWalletRecordListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Type []int64  `form:"type,optional" ci-checker:"WalletRecordType"`
+    FundingID string `form:"fundingID,optional" cs-zero:"notcheck" cs-checker:"UUIDString"`
+    Src string `form:"src,optional"`
+}
+
+type AdminGetWithdrawListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"WithdrawStatus"`
+}
+
+type AdminGetDefrayListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"DefrayStatus"`
+    SupplierID int64 `form:"supplierID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetBackListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    SupplierID int64 `form:"supplierID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetPayListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"PayStatus"`
+}
+
+type AdminGetOwnerListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Status []int64 `form:"status,optional" ci-checker:"DefrayStatus"`
+    Src string `form:"src,optional"`
+    SupplierID int64 `form:"supplierID" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetSmsMessageListReq {
+    Phone string `form:"phone,optional" cs-zero:"notcheck" cs-checker:"PhoneSring"`
+    PageReq
+    TimeWithTypeReq
+    SenderID int64 `json:"senderID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetEmailMessageListReq {
+    Email string `form:"email,optional" cs-zero:"notcheck" cs-checker:"EmailString"`
+    PageReq
+    TimeWithTypeReq
+    SenderID int64 `json:"senderID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetFuwuhaoMessageListReq {
+    OpenID string `form:"openID,optional" cs-zero:"notcheck" cs-max:"200"`
+    PageReq
+    TimeWithTypeReq
+    SenderID int64 `json:"senderID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetWxrobotMessageListReq {
+    Webhook string `form:"webhook,optional" cs-zero:"notcheck" cs-max:"200" cs-checker:"HttpString"`
+    PageReq
+    TimeWithTypeReq
+    SenderID int64 `json:"senderID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetUserListReq {
+    PageReq
+    TimeReq
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+type AdminUpdatePhoneReq {
+    AdminUpdateUserReq
+    Phone string `json:"phone" cs-checker:"PhoneString"`
+}
+
+type AdminUpdateRemarkReq {
+    AdminUpdateUserReq
+    Remark string `json:"remark,optional" cs-max:"60000"`
+}
+
+type AdminUpdateEmailReq {
+    AdminUpdateUserReq
+    Email string `json:"email,optional" cs-zero:"notcheck" cs-checker:"EmailString"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type AdminUpdatePasswordReq {
+    AdminUpdateUserReq
+    PasswordHash string `json:"passwordHash,optional" cs-zero:"notcheck" cs-max:"200"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type AdminUpdateUserNameReq {
+    AdminUpdateUserReq
+    UserName string `json:"username,optional" cs-zero:"notcheck" cs-max:"30"`
+    IsDelete bool `json:"isDelete,optional"`
+}
+
+type AdminDeleteWechatReq {
+    AdminUpdateUserReq
+}
+
+type AdminDelete2FAReq {
+    AdminUpdateUserReq
+}
+
+type AdminUpdateStatusReq {
+    AdminUpdateUserReq
+    Status string `json:"status" cs-checker:"UserStatus"`
+}
+
+type AdminSendSMSReq {
+    AdminUpdateUserReq
+    TemplateID string `json:"templateID" cs-max:"50"`
+    Sig string `json:"sig" cs-max:"20"`
+    Data []LabelValueRecord `json:"data" c-ignore:"true"`
+}
+
+type AdminSendEmailReq {
+    AdminUpdateUserReq
+    Subject string `json:"subject" cs-max:"200"`
+    Content string `json:"content" cs-max:"200"`
+}
+
+type AdminSendMessageReq {
+    AdminUpdateUserReq
+    Title string `json:"title" cs-max:"20"`
+    Message string `json:"message" cs-max:"100"`
+    SenderLink string `json:"senderLink,optional" cs-zero:"notcheck" cs-max:"200" cs-checker:"HttpString"`
+}
+
+type AdminSendWXRobotReq {
+    AdminUpdateUserReq
+    Content string `json:"content" cs-max:"100"`
+}
+
+type AdminSendFuwuhaoReq {
+    AdminUpdateUserReq
+    TemplateID string `json:"templateID" cs-max:"100"`
+    Url string `json:"url,optional" cs-zero:"notcheck" cs-max:"200" cs-checker:"HttpString"`
+    Val []LabelValueRecord `json:"val" c-ignore:"true"`
+}
+
+type AdminGetPayInfoReq {
+    ID string `form:"id" cs-max:"100"`
+}
+
+type AdminGetDefrayInfoReq {
+    ID string `form:"id" cs-max:"100"`
+}
+
+type AdminGetBackInfoReq {
+    ID string `form:"id" cs-max:"100"`
+}
+
+type AdminGetWithdrawInfoReq {
+    ID string `form:"id" cs-max:"100"`
+}
+
+type AdminGetInvoiceInfoReq {
+    ID string `form:"id" cs-max:"100"`
+}
+
+type AdminProcessSelfPayReq {
+    ID string `json:"id" cs-max:"100"`
+    Get int64 `json:"get,optional" ci-min:"0"`
+    Success bool `json:"success,optional"`
+}
+
+type AdminProcessWithdrawReq {
+    ID string `json:"id" cs-max:"100"`
+    Success bool `json:"success,optional"`
+}
+
+type AdminProcessInvoiceReq {
+    ID string `json:"id" cs-max:"100"`
+    Status int64 `json:"status" ci-checker:"InvoiceStatus"`
+}
+
+type AdminJoinDiscountReq {
+    AdminUpdateUserReq
+    DiscountID int64 `json:"discountID" ci-zero:"ignore" ci-min:"10000"`
+}
+
+type AdminCreateDiscountReq{
+    Name            string `json:"name" cs-max:"50"`
+    Describe        string `json:"describe,optional" cs-zero:"notcheck" cs-max:"6000"`
+    ShortDescribe string `json:"shortDescribe" cs-max:"200"`
+    Type            int64   `json:"type" ci-checker:"DiscountType"`
+    Quota           DiscountQuota `json:"quota" c-ignore:"true"`
+    DayLimit int64 `json:"dayLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    MonthLimit int64 `json:"monthLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    YearLimit int64 `json:"yearLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    Limit       int64   `json:"limit,optional,default=500" ci-zero:"ignore" ci-min:"0"`
+    NeedVerify bool `json:"needVerify"`
+    NeedCompany bool `json:"needCompany"`
+    NeedUserOrigin bool `json:"needUserOrigin"`
+    NeedCompanyOrigin bool `json:"needCompanyOrigin"`
+    NeedUserFace bool `json:"needUserFace"`
+    NeedCompanyFace bool `json:"needCompanyFace"`
+    Remark string `json:"remark,optional" cs-max:"60000"`
+    Show bool `json:"show"`
+}
+
+type AdminUpdateDiscountReq{
+    ID int64 `json:"id" ci-min:"10000"`
+    Name            string `json:"name" cs-max:"50"`
+    Describe        string `json:"describe,optional" cs-zero:"notcheck" cs-max:"6000"`
+    ShortDescribe string `json:"shortDescribe" cs-max:"200"`
+    Type            int64   `json:"type" ci-checker:"DiscountType"`
+    Quota           DiscountQuota `json:"quota" c-ignore:"true"`
+    DayLimit int64 `json:"dayLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    MonthLimit int64 `json:"monthLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    YearLimit int64 `json:"yearLimit,optional" ci-zero:"ignore" ci-min:"0"`
+    Limit       int64   `json:"limit,optional,default=500" ci-zero:"ignore" ci-min:"0"`
+    NeedVerify bool `json:"needVerify"`
+    NeedCompany bool `json:"needCompany"`
+    NeedUserOrigin bool `json:"needUserOrigin"`
+    NeedCompanyOrigin bool `json:"needCompanyOrigin"`
+    NeedUserFace bool `json:"needUserFace"`
+    NeedCompanyFace bool `json:"needCompanyFace"`
+    Remark string `json:"remark,optional" cs-max:"60000"`
+    Show bool `json:"show"`
+}
+
+type GetCouponsListReq {
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `json:"type,optional" ci-checker:"CouponType"`
+}
+
+type ChangeRoleReq {
+    AdminUpdateUserReq
+    RoleID  int64 `json:"roleID" ci-min:"10000"`
+}
+
+type AdminGetUserTokenReq {
+    AdminGetUserReq
+    IsLogin bool `json:"isLogin,optional"`
+    Limit int64 `json:"limit,optional,default=500" ci-zero:"ignore" ci-min:"1" ci-max:"1000"`
+}
+
+type AdmnCreateAnnouncementReq {
+    Title string `json:"title"`
+    Content string `json:"content" cs-max:"1000"`
+    StartAt int64 `json:"startAt" ci-min:"0"`
+    StopAt int64 `json:"stopAt,optional" ci-zero:"ignore" ci-min:"0"`
+}
+
+type AdmnUpdateAnnouncementReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Title string `json:"title"`
+    Content string `json:"content" cs-max:"1000"`
+    StartAt int64 `json:"startAt" ci-min:"0"`
+    StopAt int64 `json:"stopAt,optional" ci-zero:"ignore" ci-min:"0"`
+}
+
+type GetMenuListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetRoleListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetWebsiteListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetWebPermissionListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetWebPathListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetPermissionListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type GetPathListReq {
+    PageReq
+    Name string `form:"name,optional cs-max:"100""`
+}
+
+type GetDoaminReq {
+    DomainUID string `form:"domainUID" cs-checker:"UUIDString"`
+}
+
+type UserGetAuditReq {
+    PageReq
+    TimeWithTypeReq
+    FromID int64 `form:"fromID,optional" ci-checker:"WebIDWithAll"`
+    Src string `form:"src,optional"`
+}
+
+type AdminGetAuditReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    FromID int64 `form:"fromID,optional" ci-checker:"WebIDWithAll"`
+    Src string `form:"src,optional"`
+}
+
+type AddUncleReq {
+    UncleID string `json:"uncleID" cs-max:"200"`
+}
+
+type DelUncleReq {
+    UncleID string `json:"uncleID" cs-max:"200"`
+}
+
+type AcceptNephewReq {
+    NephewID string `json:"nephewID" cs-max:"200"`
+}
+
+type DelNephewReq {
+    NephewID string `json:"nephewID" cs-max:"200"`
+}
+
+type FinishOrderReq {
+    OrderID string `json:"orderID" cs-checker:"UUIDString"`
+}
+
+type GetOrderListReq {
+    PageReq
+    TimeWithTypeReq
+    FromID int64 `form:"fromID,optional" ci-checker:"WebIDWithAll"`
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"WorkOrderStatus"`
+}
+
+type GetOrderFileReq {
+    CommunicateID int64 `form:"communicateID" ci-min:"10000"`
+    Fid string `form:"fid" cs-max:"100"`
+    Download bool `form:"download,optional"`
+}
+
+type GetCommunicateListReq {
+    PageReq
+    OrderID string `form:"orderID" cs-checker:"UUIDString"`
+}
+
+type AdminGetOrderListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    Src string `form:"src,optional"`
+    Status []int64 `form:"status,optional" ci-checker:"WorkOrderStatus"`
+    FromID int64 `form:"fromID,optional" ci-checker:"WebIDWithAll"`
+}
+
+type AdminGetOrderFileReq {
+    CommunicateID int64 `form:"communicateID" ci-min:"10000"`
+    Fid string `form:"fid" cs-max:"100"`
+    Download bool `form:"download,optional"`
+}
+
+type AdminGetCommunicateListReq {
+    PageReq
+    OrderID string `form:"orderID" cs-checker:"UUIDString"`
+}
+
+type AdminChangeOrderStatusReq {
+    OrderID string `json:"orderID" cs-checker:"UUIDString"`
+    Status int64 `json:"status" ci-checker:"WorkOrderStatus"`
+}
+
+type AdminUpdateOrderRemarkReq {
+    OrderID string `json:"orderID" cs-checker:"UUIDString"`
+    Remark string `json:"remark,optional" cs-max:"60000"`
+}
+
+type AdminAddPayReq {
+    AdminUpdateUserReq
+    Get int64 `json:"get" ci-min:"0"`
+    PayWay string `json:"payWay" cs-max:"20"`
+    Subject string `json:"subject" cs-max:"200"`
+}
+
+type AdminAddDefrayReq {
+    AdminUpdateUserReq
+    Owner AdminUpdateUserReq `json:"owner"`
+    Subject string `json:"subject" cs-max:"200"`         // 标题
+    Price int64 `json:"price" ci-min:"0"`              // 价格
+    Describe string `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`       // 描述
+    InvitePre          int64  `json:"invitePre,optional" ci-min:"0"`
+    DistributionLevel1 int64  `json:"distributionLevel1,optional" ci-min:"0"`
+    DistributionLevel2 int64  `json:"distributionLevel2,optional" ci-min:"0"`
+    DistributionLevel3 int64  `json:"distributionLevel3,optional" ci-min:"0"`
+    CanWithdraw bool `json:"canWithdraw"`
+    ReturnDayLimit int64 `json:"returnDayLimit"`
+}
+
+type AdminAddBackReq {
+    AdminUpdateUserReq
+    Get int64 `json:"get" ci-min:"0"`
+    Reason string `json:"reason" cs-max:"200"`
+    Subject string `json:"subject" cs-max:"200"`
+    CanWithdraw bool `json:"canWithdraw"`
+}
+
+type AdminAddWithdraw {
+    AdminUpdateUserReq
+    Cny int64 `json:"cny" ci-min:"0"`
+    WithdrawWay string `json:"withdrawWay" cs-max:"50"`
+    Name string `json:"name" cs-max:"20"`
+}
+
+type AdminAddInvoice struct {
+    AdminUpdateUserReq
+    Amount              int64          `json:"amount"`
+    Type                int64          `json:"type" ci-checker:"InvoiceType"`
+    Name                string `json:"name,optional" cs-zero:"notcheck" cs-max:"50"`
+    TaxId               string `json:"taxID,optional" cs-zero:"notcheck" cs-max:"20"`
+    BankId              string `json:"bankID,optional" cs-zero:"notcheck" cs-max:"20"`
+    Bank                string `json:"bank,optional" cs-zero:"notcheck" cs-max:"50"`
+    Recipient           string `json:"recipient,optional" cs-zero:"notcheck" cs-max:"20"`
+    Phone               string `json:"phone,optional" cs-zero:"notcheck" cs-checker:"PhoneString"`
+    Email               string `json:"email,optional" cs-zero:"notcheck" cs-checker:"PhoneString""`
+    Province            string `json:"province,optional" cs-zero:"notcheck" cs-max:"20"`
+    City                string `json:"city,optional" cs-zero:"notcheck" cs-max:"20"`
+    District            string `json:"district,optional" cs-zero:"notcheck" cs-max:"20"`
+    Address             string `json:"address,optional" cs-zero:"notcheck" cs-max:"200"`
+    Remark              string         `json:"remark,optional" cs-max:"60000"`
+}
+
+type AdminAddBilledReq {
+    AdminUpdateUserReq
+    Amount int64 `json:"amount" ci-min:"0"`
+}
+
+type AdminSubBilledReq {
+    AdminUpdateUserReq
+    Amount int64 `json:"amount" ci-min:"0"`
+}
+
+type UploadUserInfoReq {
+    IDCardToken string `json:"idcardToken" cs-max:"50"`
+}
+
+type UploadCompanyInfoReq {
+    CompanyToken string `json:"companyToken" cs-max:"50"`
+}
+
+type UploadUserFaceReq {
+    FaceToken string `json:"faceToken" cs-max:"50"`
+}
+
+type UploadCompanyFaceReq {
+    FaceToken string `json:"faceToken" cs-max:"50"`
+}
+
+type IDCardLoginReq {
+    ID string `json:"id"`
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+    FaceToken string `json:"faceToken" cs-max:"50"`
+    UserName string `json:"userName" cs-checker:"ChineseNameString"`
+    UserIDCard string `json:"userIdCard" cs-checker:"ChineseIDCardString"`
+    IsCompany bool `json:"isCompany"`
+    CompanyName string `json:"companyName,optional" cs-zero:"notcheck" cs-checker:"ChineseCompanyNameString"`
+    CompanyID string `json:"companyID,optional" cs-zero:"notcheck" cs-checker:"ChineseCompanyIDString"`
+    LegalPersonName string `json:"legalPersonName,optional" cs-zero:"notcheck" cs-checker:"ChineseNameString"`
+}
+
+type LegalPersonLoginReq {
+    ID string `json:"id"`
+    PhoneToken string `json:"phoneToken" cs-max:"50"`
+    FaceToken string `json:"faceToken" cs-max:"50"`
+    CompanyName string `json:"companyName" cs-checker:"ChineseCompanyNameString"`
+    CompanyID string `json:"companyID" cs-checker:"ChineseCompanyIDString"`
+    LegalPersonName string `json:"legalPersonName" cs-checker:"ChineseNameString"`
+    LegalPersonID string `json:"legalPersonID" cs-checker:"ChineseIDCardString"`
+}
+
+type FaceUrlReq {
+    CertifyID string `form:"certifyid" cs-max:"200"`
+}
+
+type GetAgreementReq {
+    Aid string `form:"aid" cs-max:"200"`
+}
+
+type CreateAgreementReq {
+    Aid string `json:"aid" cs-max:"200"`
+    Content string `json:"content" cs-max:"1000"`
+}
+
+type UpdateAgreementReq {
+    Aid string `json:"aid" cs-max:"200"`
+    Content string `json:"content" cs-max:"1000"`
+}
+
+type DeleteAgreementReq {
+    Aid string `json:"aid" cs-max:"200"`
+}
+
+type DeleteFileReq {
+    Fid string `json:"fid" cs-max:"200"`
+}
+
+type RefundReq {
+    TradeID string `json:"tradeID" cs-max:"100"`
+}
+
+type ReturnReq {
+    TradeID string `json:"tradeID" cs-max:"100"`
+    Reason string `json:"reason" cs-max:"200"`
+}
+
+type AdminProcessRefundReq {  // pay
+    TradeID string `json:"tradeID" cs-max:"100"`
+    Success bool `json:"success"`
+}
+
+type AdminProcessReturnReq {  // defray
+    TradeID string `json:"tradeID" cs-max:"100"`
+    Reason string `json:"reason" cs-max:"200"`
+}
+
+type WSGetCommunicateListReq {
+    OrderID string `form:"orderID" cs-checker:"UUIDString"`
+}
+
+type DeleteOauth2TokenReq {
+    Token string `json:"token" cs-max:"50"`
+}
+
+type AdminDeleteOauth2TokenReq {
+    Token string `json:"token" cs-max:"50"`
+}
+
+type AdminDeleteUserTokenReq {
+    Token string `json:"token" cs-max:"50"`
+}
+
+type DeleteOtherToken {
+    Token string `json:"token" cs-max:"50"`
+}
+
+type AdminDeleteOneUserAllTokenReq {
+    AdminUpdateUserReq
+}
+
+type AdminDeleteOneUserAllWebsiteTokenReq {
+    AdminUpdateUserReq
+    WebID int64 `json:"webID,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`
+}
+
+type AdminDeleteOneUserAllOauth2TokenReq {
+    AdminUpdateUserReq
+    WebID int64 `json:"webID,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`  // 0表示所有
+}
+
+type GetAccessRecordList {
+    PageReq
+    TimeWithTypeReq
+}
+
+type GetOauth2RecordList {
+    PageReq
+    TimeWithTypeReq
+}
+
+type GetTokenRecordList {
+    PageReq
+    TimeWithTypeReq
+}
+
+type GetAccessRecordListByToken {
+    Token string `form:"token" cs-max:"50"`
+    PageReq
+    TimeWithTypeReq
+}
+
+type GetAccessRecordListByCond {
+    Cond string `form:"cond" cs-max:"1000"`
+    PageReq
+}
+
+type GetTokenRecordListByToken {
+    Token string `form:"token" cs-max:"50"`
+    PageReq
+    TimeWithTypeReq
+}
+
+type GetAccessRecord {
+    RequestID string `form:"requestID" cs-max:"100"`
+}
+
+type GetOauthRecordListReq {
+    PageReq
+    TimeWithTypeReq
+    WebID int64 `json:"webID,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`
+}
+
+type BannedOauth2Req {
+    WebID int64 `json:"webID" ci-checker:"WebIDNotCenter"`
+    AllowLogin bool `json:"allowLogin"`
+    AllowDefray bool `json:"allowDefray"`
+    AllowMsg bool `json:"allowMsg"`
+}
+
+type OpenOauth2Req {
+    WebID string `json:"webID" cs-checker:"UUIDString"`
+}
+
+type AdminGetOauthRecordListReq {
+    AdminGetUserReq
+    PageReq
+    TimeWithTypeReq
+    WebID int64 `json:"webID,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`
+}
+
+type AdminGetOauthBannedListReq {
+    AdminGetUserReq
+}
+
+type AdminBannedOauth2Req {
+    AdminUpdateUserReq
+    WebID int64 `json:"webID" ci-checker:"WebIDNotCenter"`
+    AllowLogin bool `json:"allowLogin"`
+    AllowDefray bool `json:"allowDefray"`
+    AllowMsg bool `json:"allowMsg"`
+}
+
+type DeleteAllOauth2TokenReq {
+    WebID int64 `json:"webID,optional" ci-zero:"notcheck" ci-checker:"WebIDNotCenter"`  // 0表示所有
+}
+
+type AdminUpdateLoginControllerReq {
+    AdminUpdateUserReq
+    AllowPhone bool `json:"allowPhone"`
+    AllowEmail bool `json:"allowEmail"`
+    AllowPassword bool `json:"allowPassword"`
+    AllowWeChat bool `json:"allowWeChat"`
+    AllowSecondFA bool `json:"allowSecondFA"`
+}
+
+type AdminGetWebsiteFundingListReq {
+    WebsiteID int64 `json:"websiteID,optional" ci-zero:"notcheck" ci-checker:"WebID"`
+    PageReq
+    TimeWithTypeReq
+    Type []int64 `json:"type" ci-checker:"WebsiteFundingType"`
+}
+
+type AdminGetWebsiteFundingListYearSumReq {
+    WebsiteID int64 `json:"websiteID,optional" ci-zero:"notcheck" ci-checker:"WebID"`
+    Year int64 `json:"year" ci-min:"0" ci-max:"10000"`
+}
+
+type AlipayWithdrawReq {
+    Name string `json:"name" cs-max:"50"`
+    Identity string `json:"identity" cs-max:"50"`
+    Cny int64 `json:"cny" ci-min:"0"`
+}
+
+type WechatpayWithdrawReq {
+    Name string `json:"name" cs-max:"50"`
+    Cny int64 `json:"cny" ci-min:"0"`
+}
+
+type SelfpayWithdrawReq {
+    WithdrawWay string `json:"withdrawWay" cs-max:"50"`
+    Cny int64 `json:"cny" ci-min:"0"`
+    Name string `json:"name" cs-max:"50"`
+}
+
+type UpdatePayRemarkReq {
+    ID string `json:"id" cs-max:"100"`
+    Remark string `json:"remark,optional" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type UpdateDefrayRemarkReq {
+    ID string `json:"id" cs-max:"100"`
+    Remark string `json:"remark,optional" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type UpdateInvoiceRemarkReq {
+    ID string `json:"id" cs-max:"100"`
+    Remark string `json:"remark,optional" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type UpdateBackRemarkReq {
+    ID string `json:"id" cs-max:"100"`
+    Remark string `json:"remark,optional" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type UpdateWithdrawRemarkReq {
+    ID string `json:"id" cs-max:"100"`
+    Remark string `json:"remark,optional" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type AdminWebsiteFundingRemarkUpdateReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Remark string `json:"remark" cs-zero:"ignore" cs-max:"60000"`
+}
+
+type CreatePermissionReq {
+    Name        string       `json:"name" cs-max:"50"`
+    Sign        string       `json:"sign" cs-max:"50"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`
+    IsAnonymous bool         `json:"isAnonymous"`
+    IsUser      bool         `json:"isUser"`
+    Status      int64        `json:"status" ci-checker:"PermissionStatus"`
+}
+
+type UpdatePermissionReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Name        string       `json:"name" cs-max:"50"`
+    Sign        string       `json:"sign" cs-max:"50"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`
+    IsAnonymous bool         `json:"isAnonymous"`
+    IsUser      bool         `json:"isUser"`
+    Status      int64        `json:"status" ci-checker:"PermissionStatus"`
+}
+
+type CreatePathReq {
+    Describe string `json:"describe,optional"`
+    Path string `json:"path" ms-max:"100"`
+    Mode int64 `json:"mode" ci-checker:"PathMode"`
+    Status int64 `json:"status" ci-checker:"PathStatus"`
+    Authentication bool         `json:"authentication"`
+    DoubleCheck bool `json:"doubleCheck"`
+    CorsMode       int64        `json:"corsMode" ci-checker:"CorsMode"`
+    AdminMode      int64        `json:"adminMode" ci-checker:"AdminMode"`
+    BusyMode int64 `json:"busyMode" ci-checker:"BusyMode"`
+    BusyCount int64 `json:"busyCount,optional" ci-zero:"ignore" ci-min:"1"`
+    CaptchaMode int64 `json:"captchaMode" ci-checker:"CaptchaModel"`
+
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+    SubPolicy []string `json:"subPolicy,optional" csl-zero:"notcheck" csl-checker:"SubPermissionSlice" csl-max:"20"`
+    Method []string `json:"method,optional" csl-zero:"notcheck" csl-checker:"HttpMethod" csl-max:"20"`
+}
+
+type UpdatePathReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Describe string `json:"describe,optional"`
+    Path string `json:"path" ms-max:"100"`
+    Mode int64 `json:"mode" ci-checker:"PathMode"`
+    Status int64 `json:"status" ci-checker:"PathStatus"`
+    Authentication bool         `json:"authentication"`
+    DoubleCheck bool `json:"doubleCheck"`
+    CorsMode       int64        `json:"corsMode" ci-checker:"CorsMode"`
+    AdminMode      int64        `json:"adminMode" ci-checker:"AdminMode"`
+    BusyMode int64 `json:"busyMode" ci-checker:"BusyMode"`
+    BusyCount int64 `json:"busyCount,optional" ci-zero:"ignore" ci-min:"1"`
+    CaptchaMode int64 `json:"captchaMode" ci-checker:"CaptchaModel"`
+
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"PermissionSlice" csl-max:"100"`
+    SubPolicy []string `json:"subPolicy,optional" csl-zero:"notcheck" csl-checker:"SubPermissionSlice" csl-max:"20"`
+    Method []string `json:"method,optional" csl-zero:"notcheck" csl-checker:"HttpMethod" csl-max:"20"`
+}
+
+type CreateWebsitePermissionReq {
+    Name        string       `json:"name" cs-max:"20"`
+    Sign        string       `json:"sign" cs-max:"20"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"100"`
+    Status      int64        `json:"status" ci-checker:"WebsitePermissionStatus"`
+}
+
+type UpdateWebsitePermissionReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Name        string       `json:"name" cs-max:"20"`
+    Sign        string       `json:"sign" cs-max:"20"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"100"`
+    Status      int64        `json:"status" ci-checker:"WebsitePermissionStatus"`
+}
+
+type CreateWebsitePathReq {
+    Describe string `json:"describe,optional" cs-max:"200"`
+    Path string `json:"path" cs-max:"100"`
+    Mode int64 `json:"mode" ci-chekcer:"WebsitePathMode"`
+    Status int64 `json:"status" ci-checker:"WebsitePathStatus"`
+
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"WebsitePermissionSlice" csl-max:"100"`
+    Method []string `json:"method,optional" csl-zero:"notcheck" csl-checker:"HttpMethod" csl-max:"20"`
+}
+
+type UpdateWebsitePathReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Describe string `json:"describe,optional" cs-max:"200"`
+    Path string `json:"path" cs-max:"100"`
+    Mode int64 `json:"mode" ci-chekcer:"WebsitePathMode"`
+    Status int64 `json:"status" ci-checker:"WebsitePathStatus"`
+
+    IsOr bool `json:"isOr"`
+    Policy []string `json:"policy,optional" csl-zero:"notcheck" csl-checker:"WebsitePermissionSlice" csl-max:"100"`
+    Method []string `json:"method,optional" csl-zero:"notcheck" csl-checker:"HttpMethod" csl-max:"20"`
+}
+
+type AddWebsiteDomainReq {
+    WebsiteID int64 `json:"websiteID" ci-checker:"WebIDNotCenter"`
+    Domain string `json:"domain" cs-max:"200"`
+}
+
+type GetOauth2ListReq {
+    IsLogin bool `json:"isLogin,optional"`
+    Limit int64 `json:"limit,optional,default=500" ci-zero:"ignore" ci-min:"1" ci-max:"1000"`
+}
+
+type GetUncleList {
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+type GetNephewList {
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+
+type GetInviteList {
+    PageReq
+    Status []string `form:"status,optional" cs-checker:"UserStatus"`
+    Src string `form:"src,optional"`
+}
+
+type AdminGetDiscountList {
+    PageReq
+    Src string `form:"src,optional"`
+}
+
+type AdminGetAnnouncementList {
+    PageReq
+    Src string `form:"src,optional"`
+}
+
+type GetAnnouncementList {
+    PageReq
+    Src string `form:"src,optional"`
+}
+
+type GetUIFileList {
+    PageReq
+    MediaType []string `json:"mediaType,optional" cs-max:"50"`
+    Name      string   `json:"name,optional" cs-max:"100"`
+}
+
+type CreateApplicationReq {
+    Name        string       `json:"name" cs-max:"50"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`
+    WebID int64 `json:"webID" ci-checker:"WebIDNotCenter"`
+    Url string `json:"url" cs-max:"200" cs-checker:"HttpString"`
+    Icon string `json:"icon" cs-max:"100"`
+    Status      int64        `json:"status" ci-checker:"ApplicationStatus"`
+}
+
+type UpdateApplicationReq {
+    ID int64 `json:"id" ci-min:"10000"`
+    Name        string       `json:"name" cs-max:"50"`
+    Describe    string       `json:"describe,optional" cs-zero:"ignore" cs-max:"200"`
+    WebID int64 `json:"webID" ci-checker:"WebIDNotCenter"`
+    Url string `json:"url" cs-max:"200" cs-checker:"HttpString"`
+    Icon string `json:"icon" cs-max:"100"`
+    Status      int64        `json:"status" ci-checker:"ApplicationStatus"`
+}
+
+type GetApplicationListReq {
+    PageReq
+    Name string `form:"name,optional" cs-max:"100"`
+}
+
+type UploadFileReq {
+    Fid string `form:"fid" cs-max:"50"`
+}
+
+type UploadBlueInvoice {
+    ID string `form:"id" cs-max:"100""`
+    InvoiceCode string `form:"invoiceCode,optional" cs-zero:"notcheck" cs-max:"20"`
+    InvoiceNumber string `form:"invoiceCode" cs-max:"20"`
+    InvoiceCheckCode string `form:"invoiceCheckCode,optional" cs-zero:"notcheck" cs-max:"20"`
+    IssuerDate string `form:"issuerDate" cs-max:"20"`
+}
+
+type UploadRedInvoice {
+    ID string `form:"id" cs-max:"100"`
+    InvoiceCode string `form:"invoiceCode,optional" cs-zero:"notcheck" cs-max:"20"`
+    InvoiceNumber string `form:"invoiceCode" cs-max:"20"`
+    InvoiceCheckCode string `form:"invoiceCheckCode,optional" cs-zero:"notcheck" cs-max:"20"`
+    IssuerDate string `form:"issuerDate" cs-max:"20"`
+}
+
+type AdminCreateOrder {
+    AdminUpdateUserFormReq
+    Title string `form:"title" cs-max:"50"`
+    Content string `form:"content" cs-max:"200"`
+
+    // filename 文件名列表
+    // file 文件列表
+}
+
+type AdminReplyOrder {
+    ID string `form:"id" cs-checker:"UUIDString"`
+    Content string `form:"content" cs-max:"200"`
+    Status int64 `form:"status" ci-checker:"OrderStatus"`
+
+    // filename 文件名列表
+    // file 文件列表
+}
+
+type CreateOrder {
+    Title string `form:"title" cs-max:"50"`
+    Content string `form:"content" cs-max:"200"`
+
+    // filename 文件名列表
+    // file 文件列表
+}
+
+type ReplyOrder {
+    ID string `form:"id" cs-checker:"UUIDString"`
+    Content string `form:"content" cs-max:"200"`
+
+    // filename 文件名列表
+    // file 文件列表
+}
+
+type UpdateHeader {
+    IsDelete bool `form:"isDelete"`
+}
+
+type UploadDefaultHeader {
+    // 需要占位入参，确保调用ParseMultipartForm
+
+    // header 默认头像
+}
+
+type CheckCompany {
+    // 需要占位入参，确保调用ParseMultipartForm
+
+    // idcard 法人人身份证人像面
+    // idcardback 法人人身份证国徽面
+    // license 营业执照
+}
+
+type CheckUser {
+    // 需要占位入参，确保调用ParseMultipartForm
+
+    // idcard 使用人身份证人像面
+    // idcardback 使用人身份证国徽面
+}

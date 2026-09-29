@@ -1,0 +1,1540 @@
+syntax = "v1"
+
+import "req.api"
+import "resp.api"
+
+/*
+如何读懂service？
+
+@server (
+	prefix: {{prefix}}}
+)
+service user {
+	@handler Ping
+	{{method}} {{url}} ({{Input}}) returns ({{Output}})
+}
+
+{{method}}为方法，例如get，post
+{{prefix}}/{{url}}拼接起来为实际请求路径
+{{Input}}为入参，定义再req.api中。
+{{Output}}为出餐，定义再resp.api中。
+
+@server (
+	prefix: /a
+)
+service user {
+	@handler SendPhoneCode
+	post /b (x) returns (y)
+}
+
+type x {
+	A string `form:"x"`
+	B int64  `json:"y"`
+}
+如上为入参，大写A，B不用管，看最后的`form`和`json`。
+在post请求中，form和json不会共存，分别表示表单字段名和json字段名，存在于Body中。
+在get请求值，没有json，form表示query字段名。
+
+type c {
+	x
+	C int64 `json:"c"`
+}
+表示c中嵌入了x，等价于把x的东西直接复制过来，x有的字段c也有。
+
+string, int64, bool分别表示字符串、数字、布尔。
+
+type yData {
+	A int64 `json:"a"`
+}
+
+type y {
+	Resp
+	Data yData `json:"data"`
+}
+如上出参，入参名字以Req结尾，出参以Resp结尾。Data的类型是yData，表示Data是object，内放一个yData。Resp是{code:0, msg:""}。
+写成json，上述就是：
+{
+	"code": 0,  // 来自Resp
+	"msg": "",  // 来自Resp
+	"data": {
+		a: 0"  // 来自yData
+	}
+
+}
+
+注意：一般情况下入参出参均为json。若入参为form-data，则另外注释说明，无法使用上述方式表示。
+可能会遇到不是Req或者Resp的结构体，他们将在model.api里面。
+*/
+
+/*
+中间件详解
+
+* Develop - 仅Develop模式会开启的路由
+
+* OptionsEnd 处理options请求（必须在最后）
+注意：必须含有上述
+
+前端接口：
+
+* PolicyCheck 角色鉴权
+
+* SilenceCAPTCHACheck 静默人机验证
+* CAPTCHACheck 滑块人机验证
+
+* WebSocket 标记这是ws接口
+
+后端接口：
+
+* IPCheck 后端请求鉴权
+
+*/
+
+// 健康检测接口
+@server (
+	prefix: /api/v1/ping
+	group: health
+	middleware: Develop
+)
+service user {
+	@handler Ping
+	get / returns (PingResp)  // 健康检测
+
+	@handler PingCaptcha
+	get /captcha returns (PingResp)  // 健康检测
+
+	@handler PingUser
+	get /user returns (PingResp)  // 健康检测
+}
+
+// 用户头像 不需要鉴权
+@server (
+	prefix: /api/v1/public/header
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	// 301
+	@handler Header
+	get / (HeaderReq)  // 获取用户头像，返回301重定向
+
+	@handler UserHeader
+	get /user (UserHeaderReq)  // 获取用户头像（根据用户ID），返回301重定向
+}
+
+// 获取应用接口
+@server (
+	prefix: /api/v1/public/application
+	middleware: PolicyCheck
+	group: application
+)
+service user {
+	@handler GetApplication
+	get / returns (ApplicationResp)  // 获取菜单
+}
+
+// 公告 公共接口
+@server (
+	prefix: /api/v1/public/agreement
+	middleware: PolicyCheck
+	group: agreement
+)
+service user {
+	// 返回raw
+	@handler GetAgreement
+	get / (GetAgreementReq)  // 获取用户协议（返回html）
+}
+
+// 公共优惠包接口
+@server (
+	prefix: /api/v1/public/discount
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetDiscountList
+	get /list (GetDiscountList) returns (GetDiscountListResp)  // 获取优惠列表
+}
+
+// UI 公共接口
+@server (
+	prefix: /api/v1/public/ui
+	middleware: PolicyCheck
+	group: ui
+)
+service user {
+	@handler GetFooter
+	get /footer returns (FooterResp)  // 获取底部信息（备案号等）
+
+	// 301
+	@handler GetFile
+	get /file (GetFileReq)  // 获取文件（返回301）
+}
+
+// 公共接口 允许外站跨域
+@server (
+	prefix: /api/v1/public/afs
+	middleware: PolicyCheck
+	group: before_check
+)
+service user {
+	@handler GetAfsAppKey
+	get / returns (AFSResp)  // 获取验证码信息
+}
+
+// 个人中心接口 公共接口
+@server (
+	prefix: /api/v1/public/homepage
+	middleware: PolicyCheck
+	group: homepage
+)
+service user {
+	@handler GetHomePage
+	get / (GetHomePageReq) returns (GetHomePageResp)  // 获取用户HomePage的信息
+}
+
+// 订单接口 公共接口
+@server (
+	prefix: /api/v1/public/defray
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetDefrayInfo
+	get / (GetDefrayInfoReq) returns (GetDefrayInfoResp)  // 获取订单信息
+}
+
+// 公告接口 公共接口
+@server (
+	prefix: /api/v1/public/announcement
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetAnnouncementList
+	get /list (GetAnnouncementList) returns (GetAnnouncementListResp)  // 获取公告列表
+}
+
+// 授权登录接口 需要鉴权
+@server (
+	prefix: /api/v1/public/oauth2
+	middleware: PolicyCheck
+	group: oauth2
+)
+service user {
+	@handler GetDomain
+	get / (GetDoaminReq) returns (GetDomainResp)  // 获取域名参数
+}
+
+// 注册 公共接口
+@server (
+	prefix: /api/v1/public/registrants
+	middleware: PolicyCheck
+	group: register
+)
+service user {
+	@handler Register
+	post / (RegisterReq) returns (SuccessResp)  // 开始注册
+}
+
+// 鉴权前置接口 公共接口 需要人机验证 允许外站
+@server (
+	prefix: /api/v1/public/checker-before/captcha/allow-website
+	middleware: PolicyCheck
+	group: before_check
+)
+service user {
+	@handler SendPhoneCode
+	post /phone/send (SendPhoneCodeReq) returns (RespEmpty)  // 发送手机验证码
+
+	@handler SendEmailCode
+	post /email/send (SendEmailCodeReq) returns (RespEmpty)  // 发送邮件验证码
+}
+
+// 鉴权前置接口 公共接口 允许外站
+@server (
+	prefix: /api/v1/public/checker-before/allow-website
+	middleware: PolicyCheck
+	group: before_check
+)
+service user {
+	@handler StartFaceCheck
+	post /alipay/face (StartFackCheckReq) returns (StartFackCheckResp)  // 开始人脸识别
+
+	@handler FaceUrl
+	get /alipay/face/url (FaceUrlReq)  // 支付宝人脸识别url，调用直接301跳转alipays协议
+
+	@handler FaceInternalUrl
+	get /alipay/face/internal/url (FaceUrlReq)  // 支付宝人脸识别url，调用直接301跳转支付宝内部https协议，仅限支付宝打开（保留）
+
+	@handler GetWeChatAppID
+	get /wechat/get returns (AppIDResp)  // 获取微信登陆AppID
+}
+
+// 鉴权前置接口 公共接口
+@server (
+	prefix: /api/v1/public/checker-before
+	middleware: PolicyCheck
+	group: before_check
+)
+service user {
+	@handler GetFuwuhaoAppID
+	get /fuwuhao/get returns (AppIDResp)  // 获取公众号登录AppID
+
+	@handler GetAlipayAppID
+	get /alipay/get returns (AppIDResp)  // 获取公众号登录AppID
+
+	@handler GetTotpUrl
+	get /totp/get (GetTotpUrlReq) returns (GetTotpUrlResp)  // 获取totp的url
+
+	@handler GetFrontSalt
+	get /salt/get returns (SaltResp)  // 获取前端密码加盐
+}
+
+// 登录鉴权接口 公共接口 需要人机验证
+@server (
+	prefix: /api/v1/public/checker/captcha
+	middleware: PolicyCheck
+	group: check
+)
+service user {
+	@handler CheckPassword
+	post /password (CheckPasswordReq) returns (SuccessResp)  // 检验密码
+
+	@handler IDCardLogin
+	post /idcard (IDCardLoginReq) returns (SuccessResp)  // 使用者身份证登录
+
+	@handler LegalPersonLogin
+	post /legalperson (LegalPersonLoginReq) returns (SuccessResp)  // 法人身份证登录
+}
+
+// 登录鉴权接口 公共接口 需要人机验证 允许外站
+@server (
+	prefix: /api/v1/public/checker/captcha/allow-website
+	middleware: PolicyCheck
+	group: check
+)
+service user {
+	@handler CheckSecondFA
+	post /secondfa (CheckSecondFAReq) returns (SuccessResp)  // 2FA检验
+}
+
+// 登录鉴权接口 公共接口 允许外站
+@server (
+	prefix: /api/v1/public/checker/allow-website
+	middleware: PolicyCheck
+	group: check
+)
+service user {
+	@handler CheckWechat
+	post /wechat (CheckWechatCodeReq) returns (SuccessResp)  // 检验微信登录
+
+	@handler CheckPhoneCode
+	post /phone (CheckPhoneCodeReq) returns (SuccessResp)  // 检验手机验证码
+
+	@handler CheckEmailCode
+	post /email (CheckEmailCodeReq) returns (SuccessResp)  // 检验邮件验证码
+
+	@handler CheckFace
+	post /face (CheckFaceReq) returns (SuccessResp)  // 人脸识别
+
+	@handler CheckUser
+	post /user (CheckUser) returns (SuccessResp)  // 更新实名信息
+
+	@handler CheckCompany
+	post /company (CheckCompany) returns (SuccessResp)  // 更新企业信息
+}
+
+// 登录鉴权接口 公共接口 允许外站
+@server (
+	prefix: /api/v1/public/checker
+	middleware: PolicyCheck
+	group: check
+)
+service user {
+	@handler CheckFuwuhao
+	post /fuwuhao (CheckFuwuhaoCodeReq) returns (SuccessResp)  // 检验公众号登录
+}
+
+// 登录鉴权接口 公共接口
+@server (
+	prefix: /api/v1/public/checker-after
+	middleware: PolicyCheck  // 不需要对外站开放
+	group: second_check
+)
+service user {
+	@handler Login2FACheck
+	post /2fa (Login2FACheckReq) returns (SuccessResp)  // 2FA二次验证
+}
+
+// 授权登录接口 需要鉴权
+@server (
+	prefix: /api/v1/user/oauth2
+	middleware: PolicyCheck
+	group: oauth2
+)
+service user {
+	@handler Login
+	post / (LoginReq) returns (SuccessResp)  // OAuth2登录获取token
+
+	@handler OpenOauth2
+	post /open (OpenOauth2Req) returns (RespEmpty)
+}
+
+// 用户中心接口 需要鉴权 需要二次确认
+@server (
+	prefix: /api/v1/user/center/double-check
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler Refund
+	post /pay/refund (RefundReq) returns (RespEmpty)  // 用户退款
+
+	@handler Return
+	post /defray/return (ReturnReq) returns (RespEmpty)  // 用户消费退款
+
+	@handler DeleteUser
+	post /delete returns (RespEmpty)  // 注销
+}
+
+// 用户中心接口 需要鉴权 支付接口（按需开启）
+@server (
+	prefix: /api/v1/user/center
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler Alipay
+	post /pay/alipay/pc (AlipayReq) returns (AlipayResp)  // 支付宝充值
+
+	@handler WechatPay
+	post /pay/wechatpay/native (WechatPayReq) returns (WechatPayResp)  // 微信充值
+
+	@handler AlipayWap
+	post /pay/alipay/wap (AlipayWapReq) returns (AlipayWapResp)  // 支付宝充值
+
+	@handler WechatPayWap
+	post /pay/wechatpay/h5 (WechatPayWapReq) returns (WechatPayWapResp)  // 微信充值
+
+	@handler WechatPayJsAPI
+	post /pay/wechatpay/jsapi (WechatPayJsAPIReq) returns (WechatPayJsAPIResp)  // 微信充值
+
+	@handler Selfpay
+	post /pay/selfpay (NewPayReq) returns (SelfPayResp)  // 自定义充值
+
+	@handler AlipayWithdraw
+	post /withdraw/alipay (AlipayWithdrawReq) returns (RespEmpty)
+
+	@handler WechatpayWithdraw
+	post /withdraw/wechatpay (WechatpayWithdrawReq) returns (RespEmpty)
+
+	@handler SelfpayWithdraw
+	post /withdraw/selfpay (SelfpayWithdrawReq) returns (RespEmpty)
+
+	@handler Defray
+	post /defray (DefrayReq) returns (DefrayResp)  // 支付订单
+}
+
+// 用户中心接口 需要鉴权 支持外站调用
+@server (
+	prefix: /api/v1/user/center/allow-website
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetMessageList
+	get /message/list (GetMessageListReq) returns (GetMessageListResp)  // 获取站内信列表
+
+	@handler ReadMessage
+	post /message/read (ReadMessageReq) returns (RespEmpty)  // 读取单个站内信
+
+	@handler ReadAllMessage
+	post /message/read/all returns (RespEmpty)  // 读取所有站内信
+
+	@handler GetOrderList
+	get /order/list (GetOrderListReq) returns (GetOrderListResp)  // 获取工单列表
+
+	@handler GetCommunicateList
+	get /order/communicate/list (GetCommunicateListReq) returns (GetOrderCommunicateListResp)  // 获取工单列表
+
+	@handler GetOrderFile
+	get /order/file (GetOrderFileReq)  // 获取工单文件，301重定向
+
+	@handler CreateOrder
+	post /order/create (CreateOrder) returns (RespEmpty)  // 创建工单
+
+	@handler ReplyOrder
+	post /order/reply (ReplyOrder) returns (RespEmpty)  // 回复工单
+
+	@handler FinishOrder
+	post /order/finish (FinishOrderReq) returns (RespEmpty)  // 完成工单
+
+	@handler GetDefrayList
+	get /defray/list (GetDefrayListReq) returns (GetDefrayListResp)  // 获取订单列表
+
+	@handler GetDefrayOwnerList
+	get /defray/owner/list (GetDefrayOwnerListReq) returns (GetDefrayOwnerListResp)  // 获取订单列表
+
+	@handler GetBackList
+	get /back/list (GetBackListReq) returns (GetBackListResp)  // 获取订单列表
+
+	@handler GetAudit
+	get /audit/list (UserGetAuditReq) returns (UserGetAuditResp)  // 获取审计列表
+}
+
+// 用户中心接口 需要鉴权
+@server (
+	prefix: /api/v1/user/center
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetInfo
+	get /info returns (GetInfoResp)  // 获取用户信息
+
+	@handler DeleteToken
+	post /token/delete returns (RespEmpty)  // 删除Token
+
+	@handler GetPayList
+	get /pay/list (GetPayListReq) returns (GetPayListResp)  // 获取支付列表
+
+	@handler QueryTrade
+	get /pay/query (QueryTradeReq) returns (QueryTradeResp)  // 查询支付情况
+
+	@handler QueryRefund
+	get /refund/query (QueryRefundReq) returns (QueryRefundResp)  // 查询退款情况
+
+	@handler GetWithdrawList
+	get /withdraw/list (GetWithdrawListReq) returns (GetWithdrawListResp)  // 获取订单列表
+
+	@handler QueryWithdraw
+	get /withdraw/query (QueryWithdrawReq) returns (QueryWithdrawResp)  // 查询退款情况
+
+	@handler GetWalletRecordList
+	get /wallet/record/list (GetWalletRecordListReq) returns (GetWalletRecordListResp)  // 获取订单列表
+
+	@handler GetInvoiceList
+	get /invoice/list (GetInvoiceListReq) returns (GetInvoiceListResp)  // 获取发票列表
+
+	@handler GetInvoice
+	get /invoice/get (GetInvoiceReq) returns (GetInvoiceResp)  // 获取发票信息
+
+	@handler DownloadInvoice
+	get /invoice/download (DownloadInvoiceReq) returns (DownloadInvoiceResp)  // 获取发票信息
+
+	@handler GetCouponsList
+	get /coupons/list (GetCouponsListReq) returns (GetCouponsListResp)  // 获取优惠券列表
+
+	@handler JoinDiscount
+	post /discount/join (JoinDiscountReq) returns (RespEmpty)  // 加入优惠
+
+	@handler GetSonTree
+	get /son/tree (GetSonTree) returns (GetSonTreeResp)  // 获取子账号树
+
+	@handler RegisterSon
+	post /son/register (RegisterSonReq) returns (SuccessResp)  // 注册子账号
+
+	@handler GetSonToken
+	post /son/token (GetSonTokenReq) returns (SuccessResp)  // 获取子账号的Token
+
+	@handler GetUncleList
+	get /uncle/list (GetUncleList) returns (GetUncleListResp)  // 获取叔账号列表
+
+	@handler AddUncle
+	post /uncle/add (AddUncleReq) returns (RespEmpty)  // 添加叔账号
+
+	@handler DelUncle
+	post /uncle/del (DelUncleReq) returns (RespEmpty)  // 删除叔账号
+
+	@handler GetNephewList
+	get /nephew/list (GetUncleList) returns (GetUncleListResp)  // 获取叔账号列表
+
+	@handler AcceptNephew
+	post /nephew/add (AcceptNephewReq) returns (RespEmpty)
+
+	@handler DelNephew
+	post /nephew/del (DelNephewReq) returns (RespEmpty)
+
+	@handler GetFather
+	get /father returns (GetFatherResp)  // 获取父账号信息
+
+	@handler GetInvite
+	get /invite returns (GetInviteResp)  // 获取父账号信息
+
+	@handler GetInviteList
+	get /invite/list (GetInviteList) returns (GetInviteListResp)  // 获取邀请账号列表
+
+	@handler Invoice
+	post /invoice (InvoiceReq) returns (InvoiceResp)  // 开发票
+
+	@handler InvoiceReturn
+	post /invoice/return (InvoiceReturnReq) returns (RespEmpty)  // 作废发票
+
+	@handler UpdateSignin
+	post /signin/update (UserUpdateSigninReq) returns (RespEmpty)  // 更新是否单点登录
+
+	@handler Delete2FAWithSecret
+	post /2fa/delete/secret (Delete2FAWithSecretReq) returns (RespEmpty)  // 删除2FA（包含密钥）
+
+	@handler Bind2FA
+	post /2fa/bind (Bind2FAReq) returns (RespEmpty)  // 绑定2FA
+
+	@handler UpdatePassword
+	post /password/update (UserUpdatePasswordReq) returns (RespEmpty)  // 更新密码
+
+	@handler UpdateWXRobot
+	post /wxrobot/update (UserUpdateWXRobotReq) returns (RespEmpty)  // 更新微信机器人
+
+	@handler UpdateTitle
+	post /title/update (UserUpdateTitleReq) returns (RespEmpty)  // 更新发票抬头
+
+	@handler UpdateAddress
+	post /address/update (UserUpdateAddressReq) returns (RespEmpty)  // 更新收货地址
+
+	@handler UpdateTokenExpiration
+	post /token/expiration/update (UserUpdateTokenExpirationReq) returns (RespEmpty)  // 更新Token刷新时间
+
+	@handler UpdateLoginController
+	post /loginctrl/update (UpdateLoginControllerReq) returns (RespEmpty)  // 更新登录限制
+
+	@handler UpdateHomePage
+	post /homepage/update (UserUpdateHomePageReq) returns (RespEmpty)  // 更新HomePage信息
+
+	@handler UpdateHeader
+	post /header/update (UpdateHeader) returns (RespEmpty)  // 更新头像
+
+	@handler UpdateNickname
+	post /nickname/update (UserUpdateNicknameReq) returns (RespEmpty)  // 更新昵称
+
+	@handler UpdatePhone
+	post /phone/update (UserUpdatePhoneReq) returns (RespEmpty)  // 更新手机号
+
+	@handler UpdateEmail
+	post /email/update (UserUpdateEmailReq) returns (RespEmpty)  // 更新邮箱
+
+	@handler UpdateWeChat
+	post /wechat/update (UserUpdateWeChatReq) returns (RespEmpty)  // 更新微信
+
+	@handler UpdateUserName
+	post /username/update (UserUpdateUserNameReq) returns (RespEmpty)  // 更新用户名
+}
+
+// 用户菜单 需要鉴权
+@server (
+	prefix: /api/v1/user/center/menu
+	middleware: PolicyCheck
+	group: menu
+)
+service user {
+	@handler GetMenu
+	get / returns (MenuResp)  // 获取菜单
+}
+
+// 用户中心接口 需要鉴权
+@server (
+	prefix: /api/v1/user/center/root-only
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler UploadUserInfoByJson
+	post /userinfo/json/upload (UploadUserInfoByJson) returns (RespEmpty)  // 更新实名信息（仅填写）
+
+	@handler UploadCompanyInfoByJson
+	post /companyinfo/json/upload (UploadCompanyInfoByJson) returns (RespEmpty)  // 更新企业信息（仅填写）
+
+	@handler UploadUserInfo
+	post /userinfo/upload (UploadUserInfoReq) returns (RespEmpty)  // 更新实名信息
+
+	@handler UploadCompanyInfo
+	post /companyinfo/upload (UploadCompanyInfoReq) returns (RespEmpty)  // 更新企业信息
+
+	@handler UploadUserFace
+	post /userinfo/face/upload (UploadUserFaceReq) returns (RespEmpty)  // 更新实名信息
+
+	@handler UploadCompanyFace
+	post /companyinfo/face/upload (UploadCompanyFaceReq) returns (RespEmpty)  // 更新企业信息
+
+	@handler Delete2FA
+	post /2fa/delete (Delete2FAReq) returns (RespEmpty)  // 删除2FA
+}
+
+@server(
+	prefix: /api/v1/user/ws
+	middleware: WebSocket, PolicyCheck
+	group: center
+)
+service user {
+	@handler WSGetInfo
+	get / // 获取用户信息
+}
+
+// 用户管理权限
+@server (
+	prefix: /api/v1/admin/user
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler GetUserList
+	get /list (AdminGetUserListReq) returns (AdminGetUserListResp)  // 获取用户列表
+
+	@handler GetUser
+	get /data (AdminGetUserReq) returns (AdminGetUserResp)  // 获取用户详细信息
+
+	@handler GetUserHomepage
+	get /homepage (AdminGetUserReq) returns (AdminGetHomePageResp)  // 获取用户主页信息
+
+	@handler GetUserSon
+	get /son (AdminGetUserSonReq) returns (AdminGetSonTreeResp)  // 获取用户子账号信息
+
+	@handler UpdateRemark
+	post /data/remark/update (AdminUpdateRemarkReq) returns (RespEmpty)  // 更新备注（data下）
+
+	@handler UpdateLoginController
+	post /loginctrl/update (AdminUpdateLoginControllerReq) returns (RespEmpty)  // 更新登录限制
+
+	@handler UpdatePhone
+	post /phone/update (AdminUpdatePhoneReq) returns (RespEmpty)  // 更新手机号
+
+	@handler UpdateEmail
+	post /email/update (AdminUpdateEmailReq) returns (RespEmpty)  // 更新邮箱
+
+	@handler UpdatePassword
+	post /password/update (AdminUpdatePasswordReq) returns (RespEmpty)  // 更新密码
+
+	@handler UpdateUserName
+	post /username/update (AdminUpdateUserNameReq) returns (RespEmpty)  // 更新用户名
+
+	@handler DeleteWechat
+	post /wechat/delete (AdminDeleteWechatReq) returns (RespEmpty)  // 解绑微信
+
+	@handler Update2FA
+	post /secondfa/delete (AdminDelete2FAReq) returns (RespEmpty)  /// 解绑2FA
+
+	@handler GetUserTokenList
+	get /token/all (AdminGetUserTokenReq) returns (AdminGetAllTokenResp)  // 获取在线Token的信息
+
+	@handler GetUserSonTokenList
+	get /token/son/all (AdminGetUserTokenReq) returns (AdminGetAllSonTokenResp)  // 获取在线Token的信息
+
+	@handler DeleteOneUserAllToken
+	post /token/delete/all (AdminDeleteOneUserAllTokenReq) returns (RespEmpty)  // 删除Token
+
+	@handler DeleteOneUserAllSonToken
+	post /token/son/delete/all (AdminDeleteOneUserAllTokenReq) returns (RespEmpty)  // 删除Token
+
+	@handler DeleteOneUserAllFatherToken
+	post /token/father/delete/all (AdminDeleteOneUserAllTokenReq) returns (RespEmpty)  // 删除Token
+
+	@handler DeleteOneUserAllWebsiteToken
+	post /token/website/delete/all (AdminDeleteOneUserAllWebsiteTokenReq) returns (RespEmpty)  // 删除Token
+
+	@handler DeleteToken
+	post /token/delete (AdminDeleteUserTokenReq) returns (RespEmpty)
+
+	@handler GetLoginTokenList
+	get /oauth2/all (AdminGetUserTokenReq) returns (AdminGetAllOauth2TokenResp)  // 获取在线Token的信息
+
+	@handler GetOauthRecordList
+	get /oauth2/record/list (AdminGetOauthRecordListReq) returns (AdminGetOauthRecordListResp)
+
+	@handler GetOauthBannedList
+	get /oauth2/banned/list (AdminGetOauthBannedListReq) returns (AdminGetOauthBannedListResp)
+
+	@handler DeleteOauth2Token
+	post /oauth2/delete (AdminDeleteOauth2TokenReq) returns (RespEmpty)  // 取消授权
+
+	@handler DeleteOneUserAllOauth2Token
+	post /oauth2/delete/all (AdminDeleteOneUserAllOauth2TokenReq) returns (RespEmpty)
+
+	@handler BannedOauth2
+	post /oauth2/banned (AdminBannedOauth2Req) returns (RespEmpty)
+
+	// form-data
+	@handler UploadDefaultHeader
+	post /header/upload returns (RespEmpty)  // 上传默认头像
+	/*
+	form-data:
+	header 默认头像
+	*/
+}
+
+// 用户资金管理
+@server (
+	prefix: /api/v1/admin/finance
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler GetUserFinance
+	get / (AdminGetUserReq) returns (AdminGetUserFinanceResp)  // 获取用户金钱信息
+
+	@handler GetPayInfo
+	get /pay/info (AdminGetPayInfoReq) returns (AdminGetPayInfoResp)  // 获取充值信息
+
+	@handler GetUserPayList
+	get /pay/list (AdminGetPayListReq) returns (AdminGetPayInfoResp)  // 获取用户充值列表
+
+	@handler GetDefrayInfo
+	get /defray/info (AdminGetDefrayInfoReq) returns (AdminGetDefrayInfoResp)  // 获取支付信息
+
+	@handler GetUserDefrayList
+	get /defray/list (AdminGetDefrayListReq) returns (AdminGetDefrayListResp)  // 获取用户支付列表
+
+	@handler GetUserOwnerDefrayList
+	get /defray/owner/list (AdminGetOwnerListReq) returns (AdminGetDefrayOwnerListResp)  // 获取用户支付列表
+
+	@handler GetBackInfo
+	get /back/info (AdminGetBackInfoReq) returns (AdminGetBackInfoResp)  // 获取支付信息
+
+	@handler GetUserBackList
+	get /back/list (AdminGetBackListReq) returns (AdminGetBackListResp)  // 获取用户支付列表
+
+	@handler GetWithdrawInfo
+	get /withdraw/info (AdminGetWithdrawInfoReq) returns (AdminGetWithdrawInfoResp)  // 获取支付信息
+
+	@handler GetWithdrawList
+	get /withdraw/list (AdminGetWithdrawListReq) returns (AdminGetWithdrawListResp)  // 获取用户支付列表
+
+	@handler GetWalletRecordList
+	get /wallet/record/list (AdminGetWalletRecordListReq) returns (AdminGetWalletRecordListResp)  // 获取用户支付列表
+
+	@handler GetWalletRemarkUpdate
+	post /wallet/record/remark/update (AdminGetWalletRemarkUpdate) returns (RespEmpty)  // 获取订单列表
+
+	@handler GetUserInvoiceList
+	get /invoice/list (AdminGetInvoiceListReq) returns (AdminGetInvoiceListResp)  // 获取发票列表
+
+	@handler GetInvoiceInfo
+	get /invoice/info (AdminGetInvoiceInfoReq) returns (AdminGetInvoiceInfoResp)  // 获取发票信息
+
+	@handler DownloadInvoice
+	get /invoice/download (AdminDownloadInvoiceReq) returns (AdminDownloadInvoiceResp)  // 获取发票信息
+
+	@handler UpdatePayRemark
+	post /pay/remark/update (UpdatePayRemarkReq) returns (RespEmpty)
+
+	@handler UpdateDefrayRemark
+	post /defray/remark/update (UpdateDefrayRemarkReq) returns (RespEmpty)
+
+	@handler UpdateInvoiceRemark
+	post /invoice/remark/update (UpdateInvoiceRemarkReq) returns (RespEmpty)
+
+	@handler UpdateBackRemark
+	post /back/remark/update (UpdateBackRemarkReq) returns (RespEmpty)
+
+	@handler UpdateWithdrawRemark
+	post /withdraw/remark/update (UpdateWithdrawRemarkReq) returns (RespEmpty)
+
+	@handler ProcessWithdraw
+	post /withdraw/self/process (AdminProcessWithdrawReq) returns (RespEmpty)  // 处理自充值
+
+	@handler ProcessSelfPay
+	post /pay/self/process (AdminProcessSelfPayReq) returns (RespEmpty)  // 处理自充值
+
+	@handler ProcessRefund
+	post /pay/refund/process (AdminProcessRefundReq) returns (RespEmpty)  // 处理退款
+
+	@handler ProcessRefundInside
+	post /pay/refund/inside/process (AdminProcessRefundReq) returns (RespEmpty)  // 处理退款
+
+	@handler ProcessReturn
+	post /defray/return/process (AdminProcessReturnReq) returns (RespEmpty)  // 处理消费退款
+
+	@handler ProcessInvoice
+	post /invoice/process (AdminProcessInvoiceReq) returns (RespEmpty)  // 处理开票
+
+	@handler BlueInvoiceUpload
+	post /invoice/blue/upload (UploadBlueInvoice) returns (RespEmpty)  // 开蓝字发票（需要先把状态设置为已开票、已退票、红冲）
+	/*
+	form-data:
+	* id 发票ID
+	* invoice-code 发票代码（非必填）
+	* invoice-number 发票号码
+	* invoice-check-code 发票校验码（非必填）
+	* issuer-date 日期（YYYY-MM-DD）
+
+	* file 发票文件
+	*/
+
+	@handler RedInvoiceUpload
+	post /invoice/red/upload (UploadRedInvoice) returns (RespEmpty)  // 开红字发票（需要先把状态设置为红冲）
+	/*
+	form-data:
+	* id 发票ID
+	* invoice-code 发票代码（非必填）
+	* invoice-number 发票号码
+	* invoice-check-code 发票校验码（非必填）
+	* issuer-date 日期（YYYY-MM-DD）
+
+	* file 发票文件
+	*/
+
+	@handler AddPay
+	post /pay/admin/add (AdminAddPayReq) returns (RespEmpty)
+
+	@handler AddWithdraw
+	post /withdraw/admin/add (AdminAddWithdraw) returns (RespEmpty)
+
+	@handler AddInvoice
+	post /invoice/admin/add (AdminAddInvoice) returns (RespEmpty)
+
+	@handler AddBilled
+	post /invoice/billed/add (AdminAddBilledReq) returns (RespEmpty)
+
+	@handler SubBilled
+	post /invoice/billed/sub (AdminSubBilledReq) returns (RespEmpty)
+
+	@handler AddDefray
+	post /defray/admin/add (AdminAddDefrayReq) returns (RespEmpty)
+
+	@handler AddBack
+	post /back/admin/add (AdminAddBackReq) returns (RespEmpty)
+}
+
+// 用户管理 实名管理
+@server (
+	prefix: /api/v1/admin/info
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler GetUserInfo
+	get / (AdminGetUserReq) returns (AdminGetUserInfoResp)  // 获取用户实名信息
+}
+
+// 用户管理 管理员子账号
+@server (
+	prefix: /api/v1/admin/center/token
+	middleware: PolicyCheck
+	group: center
+)
+service user {
+	@handler GetAllToken
+	get /all returns (GetAllTokenResp)  // 获取在线Token的信息
+
+	@handler DeleteOtherToken
+	post /other/delete (DeleteOtherToken) returns (RespEmpty)
+
+	@handler DeleteAllToken
+	post /all/delete returns (RespEmpty)  // 删除所有Token
+}
+
+// 授权登录接口 需要鉴权
+@server (
+	prefix: /api/v1/admin/center/oauth2
+	middleware: PolicyCheck
+	group: oauth2
+)
+service user {
+	@handler GetList
+	get /list (GetOauth2ListReq) returns (GetOauth2ListResp)  // 获取授权列表
+
+	@handler DeleteToken
+	post /delete (DeleteOauth2TokenReq) returns (RespEmpty)  // 取消授权
+
+	@handler DeleteAllToken
+	post /delete/all (DeleteAllOauth2TokenReq) returns (RespEmpty)
+
+	@handler GetOauthRecordList
+	get /record/list (GetOauthRecordListReq) returns (GetOauthRecordListResp)
+
+	@handler GetOauthBannedList
+	get /banned/list (PageReq) returns (GetOauthBannedListResp)
+
+	@handler GetWebsiteList
+	get /website (PageReq) returns (Oauth2GetWebsiteListData)
+}
+
+// 授权登录接口 需要鉴权 需要二次验证
+@server (
+	prefix: /api/v1/admin/center/oauth2/double-check
+	middleware: PolicyCheck
+	group: oauth2
+)
+service user {
+	@handler BannedOauth2
+	post /banned (BannedOauth2Req) returns (RespEmpty)
+}
+
+// 用户管理 管理员子账号
+@server (
+	prefix: /api/v1/admin/center/son
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler RegisterSon
+	post /register (AdminRegisterSonReq) returns (SuccessResp)  // 注册子账号
+}
+
+// 用户管理 用户优惠管理
+@server (
+	prefix: /api/v1/admin/discount
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler GetDiscountList
+	get /list (AdminGetDiscountList) returns (AdminGetDiscountListResp)  // 获取优惠包列表
+
+	@handler CreateDiscount
+	post /create (AdminCreateDiscountReq) returns (RespEmpty)  // 创建优惠包
+
+	@handler UpdateDiscount
+	post /update (AdminUpdateDiscountReq) returns (RespEmpty)  // 更新优惠包
+
+	@handler DeleteDiscount
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除优惠包
+
+	@handler JoinDiscount
+	post /join (AdminJoinDiscountReq) returns (RespEmpty)  // 用户添加优惠包
+
+	@handler GetCouponsList
+	get /coupons/list (AdminGetCouponsListReq) returns (AdminGetCouponsListResp)  // 获取优惠券列表
+}
+
+// 用户管理 用户信息管理 允许外站调用
+@server (
+	prefix: /api/v1/admin/msg/allow-website
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler GetUserMessageList
+	get /message/msg/list (AdminGetMessageListReq) returns (AdminGetMessageListResp)  // 获取站内信列表
+
+	@handler GetUserSmsMessageList
+	get /message/sms/list (AdminGetSmsMessageListReq) returns (AdminGetSmsMessageListResp)  // 获取站内信列表
+
+	@handler GetUserEmailMessageList
+	get /message/email/list (AdminGetEmailMessageListReq) returns (AdminGetEmailMessageListResp)  // 获取站内信列表
+
+	@handler GetUserFuwuhaoMessageList
+	get /message/fuwuhao/list (AdminGetFuwuhaoMessageListReq) returns (AdminGetFuwuhaoMessageListResp)  // 获取站内信列表
+
+	@handler GetUserWxrobotMessageList
+	get /message/wxrobot/list (AdminGetWxrobotMessageListReq) returns (AdminGetWxrobotMessageListResp)  // 获取站内信列表
+
+	@handler GetAudit
+	get /audit/list (AdminGetAuditReq) returns (AdminGetAuditResp)  // 获取审计列表
+
+	@handler SendSMS
+	post /send/sms (AdminSendSMSReq) returns (AdminSendMsgResp)  // 发送短信
+
+	@handler SendEmail
+	post /send/email (AdminSendEmailReq) returns (AdminSendMsgResp)  // 发送邮件
+
+	@handler SendMsg
+	post /send/msg (AdminSendMessageReq) returns (AdminSendMsgResp)  // 发送站内信
+
+	@handler SendWXRobot
+	post /send/wxrobot (AdminSendWXRobotReq) returns (AdminSendMsgResp)  // 发送微信推送
+
+	@handler SendFuwuhao
+	post /send/fuwuhao (AdminSendFuwuhaoReq) returns (AdminSendMsgResp)  // 发送微信推送
+
+	@handler GetOrderList
+	get /order/list (AdminGetOrderListReq) returns (AdminGetOrderListResp)  // 获取工单列表
+
+	@handler GetCommunicateList
+	get /order/communicate/list (AdminGetCommunicateListReq) returns (AdminGetOrderCommunicateListResp)  // 获取工单列表
+
+	@handler GetOrderFile
+	get /order/file (AdminGetOrderFileReq)  // 获取工单文件，301重定向
+
+	@handler UpdateOrderRemark
+	post /order/remark/update (AdminUpdateOrderRemarkReq) returns (RespEmpty)  // 完成工单
+
+	@handler ChangeOrderStatus
+	post /order/finish (AdminChangeOrderStatusReq) returns (RespEmpty)  // 完成工单
+
+	@handler CreateOrder
+	post /order/create (AdminCreateOrder) returns (RespEmpty)  // 创建工单
+
+	@handler ReplyOrder
+	post /order/reply (AdminReplyOrder) returns (RespEmpty)  // 回复工单
+}
+
+// 用户管理 用户封禁管理 需要管理员二次确认
+@server (
+	prefix: /api/v1/admin/user/double-check
+	middleware: PolicyCheck
+	group: admin_user
+)
+service user {
+	@handler UpdateStatus
+	post /status/update (AdminUpdateStatusReq) returns (RespEmpty)  // 更新用户状态
+}
+
+// 应用程序管理
+@server (
+	prefix: /api/v1/admin/application
+	middleware: PolicyCheck
+	group: admin_application
+)
+service user {
+	@handler GetWebsiteList
+	get /website (PageReq) returns (RoleGetWebsiteListResp)
+
+	@handler GetApplicationList
+	get /list (GetApplicationListReq) returns (AdminApplicationResp)  // 获取菜单
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddApplication
+	post /create (CreateApplicationReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeleteApplication
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdateApplication
+	post /update (UpdateApplicationReq) returns (RespEmpty)  // 更新菜单
+
+	@handler MoveApplication
+	post /move (MoveReq) returns (RespEmpty)  // 移动菜单
+}
+
+// 站点管理 允许外站管理员
+@server (
+	prefix: /api/v1/admin/website/allow-website
+	middleware: PolicyCheck
+	group: admin_website
+)
+service user {
+	@handler GetWebsiteList
+	get /list (GetWebsiteListReq) returns (GetWebsiteListResp)  // 获取登录站点列表
+
+	@handler GetAllPermissions
+	get /all returns (GetAllPermissionsResp)  // 获取所有权限值
+
+	@handler AdminGetWebsiteFundingList
+	get /funding/list (AdminGetWebsiteFundingListReq) returns (AdminGetWebsiteFundingListResp)
+
+	@handler AdminWebsiteFundingRemarkUpdate
+	post /funding/remark/update (AdminWebsiteFundingRemarkUpdateReq) returns (RespEmpty)
+
+	@handler AdminGetWebsiteFundingYearSumList
+	get /funding/year (AdminGetWebsiteFundingListYearSumReq) returns (AdminGetWebsiteFundingYearSumListResp)
+
+	@handler UpdateWebsite
+	post /update (UpdateWebsiteReq) returns (RespEmpty)  // 更新登录站点
+
+	@handler ChangeWebsiteSecret
+	post /pubkey/change (ChangeWebsiteSecretReq) returns (RespEmpty)  // 更新站点密钥
+
+	@handler AddWebsiteIP
+	post /ip/create (AddWebsiteIPReq) returns (RespEmpty)  // 添加登录站点IP
+
+	@handler DeleteWebsiteIP
+	post /ip/delete (DeleteReq) returns (RespEmpty)  // 删除登录站点IP
+
+	@handler AddWebsiteDomain
+	post /domain/create (AddWebsiteDomainReq) returns (RespEmpty)  // 添加登录站点域名
+
+	@handler DeleteWebsiteDomain
+	post /domain/delete (DeleteReq) returns (RespEmpty)  // 删除登录站点域名
+}
+
+// 站点管理
+@server (
+	prefix: /api/v1/admin/website
+	middleware: PolicyCheck
+	group: admin_website
+)
+service user {
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddWebsite
+	post /create (AddWebsiteReq) returns (RespEmpty)  // 创建登录站点
+
+	@handler DeleteWebsite
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除登录站点
+}
+
+// 站点权限管理
+@server (
+	prefix: /api/v1/admin/website-permission
+	middleware: PolicyCheck
+	group: admin_website_permission
+)
+service user {
+	@handler GetPermissionList
+	get /list (GetWebPermissionListReq) returns (AdminWebsitePermissionResp)  // 获取菜单
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddPermission
+	post /create (CreateWebsitePermissionReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeletePermission
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdatePermission
+	post /update (UpdateWebsitePermissionReq) returns (RespEmpty)  // 更新菜单
+
+	@handler MovePermission
+	post /move (MoveReq) returns (RespEmpty)  // 移动菜单
+}
+
+// 站点路由管理
+@server (
+	prefix: /api/v1/admin/website-path
+	middleware: PolicyCheck
+	group: admin_website_path
+)
+service user {
+	@handler GetPathList
+	get /list (GetWebPathListReq) returns (AdminWebsitePathResp)  // 获取菜单
+
+	@handler GetAllPermissions
+	get /all returns (GetAllPermissionsResp)
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddPath
+	post /create (CreateWebsitePathReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeletePath
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdatePath
+	post /update (UpdateWebsitePathReq) returns (RespEmpty)  // 更新菜单
+}
+
+// 公告管理
+@server (
+	prefix: /api/v1/admin/agreement
+	middleware: PolicyCheck
+	group: admin_agreement
+)
+service user {
+	@handler GetAgreementList
+	get /list (PageReq) returns (GetAgreementListResp)  // 更新用户协议
+
+	@handler CreateAgreement
+	post /create (CreateAgreementReq) returns (RespEmpty)  // 更新用户协议
+
+	@handler UpdateAgreement
+	post /update (UpdateAgreementReq) returns (RespEmpty)  // 更新用户协议
+
+	@handler DeleteAgreement
+	post /delete (DeleteAgreementReq) returns (RespEmpty)  // 更新用户协议
+}
+
+// UI管理
+@server (
+	prefix: /api/v1/admin/ui
+	middleware: PolicyCheck
+	group: admin_ui
+)
+service user {
+	@handler GetFileList
+	get /file/list (GetUIFileList) returns (FileListResp)  // 获取文件列表
+
+	@handler UpdateFooter
+	post /footer/update (UpdateFooterReq) returns (RespEmpty)  // 更新底部栏信息
+
+	@handler DeleteFile
+	post /file/delete (DeleteFileReq) returns (RespEmpty)
+
+	@handler UploadFile
+	post /file/update returns (RespEmpty)  // 上传文件
+}
+
+// 权限管理
+@server (
+	prefix: /api/v1/admin/permission
+	middleware: PolicyCheck
+	group: admin_permission
+)
+service user {
+	@handler GetPermissionList
+	get /list (GetPermissionListReq) returns (AdminPermissionResp)  // 获取菜单
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddPermission
+	post /create (CreatePermissionReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeletePermission
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdatePermission
+	post /update (UpdatePermissionReq) returns (RespEmpty)  // 更新菜单
+
+	@handler MovePermission
+	post /move (MoveReq) returns (RespEmpty)  // 移动菜单
+}
+
+// 路由管理
+@server (
+	prefix: /api/v1/admin/path
+	middleware: PolicyCheck
+	group: admin_path
+)
+service user {
+	@handler GetPathList
+	get /list (GetPathListReq) returns (AdminPathResp)  // 获取菜单
+
+	@handler GetAllPermissions
+	get /all returns (GetAllPermissionsResp)
+
+	@handler GetAllSubPermissions
+	get /sub/all returns (GetAllSubPermissionsResp)
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddPath
+	post /create (CreatePathReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeletePath
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdatePath
+	post /update (UpdatePathReq) returns (RespEmpty)  // 更新菜单
+}
+
+// 菜单管理
+@server (
+	prefix: /api/v1/admin/menu
+	middleware: PolicyCheck
+	group: admin_menu
+)
+service user {
+	@handler GetMenuList
+	get /list (GetMenuListReq) returns (AdminMenuResp)  // 获取菜单
+
+	@handler GetAllPermissions
+	get /all returns (GetAllPermissionsResp)  // 获取所有权限值
+
+	@handler GetAllSubPermissions
+	get /sub/all returns (GetAllSubPermissionsResp)
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler AddMenu
+	post /create (CreateMenuReq) returns (RespEmpty)  // 创建菜单
+
+	@handler DeleteMenu
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除菜单
+
+	@handler UpdateMenu
+	post /update (MenuUpdateReq) returns (RespEmpty)  // 更新菜单
+
+	@handler MoveMenu
+	post /move (MoveReq) returns (RespEmpty)  // 移动菜单
+}
+
+// 公告管理
+@server (
+	prefix: /api/v1/admin/announcement
+	middleware: PolicyCheck
+	group: admin_announcement
+)
+service user {
+	@handler GetAnnouncementList
+	get /list (AdminGetAnnouncementList) returns (AdminGetAnnouncementListResp)  // 获取公告列表
+
+	@handler AddAnnouncement
+	post /create (AdmnCreateAnnouncementReq) returns (RespEmpty)  // 创建公告
+
+	@handler DeleteAnnouncement
+	post /delete (DeleteReq) returns (RespEmpty)  // 删除公告
+
+	@handler UpdateAnnouncement
+	post /update (AdmnUpdateAnnouncementReq) returns (RespEmpty)  // 更新公告
+
+	@handler MoveAnnouncement
+	post /move (MoveReq) returns (RespEmpty)  // 移动公告
+}
+
+// 访问记录
+@server (
+	prefix: /api/v1/admin/accessrecord
+	middleware: PolicyCheck
+	group: admin_accessrecord
+)
+service user {
+	@handler GetAccessRecordList
+	get /access/list (GetAccessRecordList) returns (GetAccessRecordListResp)  // 访问记录
+
+	@handler GetTokenRecordList
+	get /token/list (GetTokenRecordList) returns (GetTokenRecordListResp)  // Token记录
+
+	@handler GetAccessRecordListByToken
+	get /access/token/list (GetAccessRecordListByToken) returns (GetAccessRecordListResp)  // 根据Token筛选访问记录
+
+	@handler GetTokenRecordListByToken
+	get /token/token/list (GetTokenRecordListByToken) returns (GetTokenRecordListResp)  // 根据Token筛选Token记录
+
+	@handler GetAccessRecordListByCond
+	get /access/cond/list (GetAccessRecordListByCond) returns (GetAccessRecordListByCondResp)  // 自定义条件筛选访问记录
+
+	@handler GetAccessRecord
+	get /access/info (GetAccessRecord) returns (GetAccessRecordResp)  // 根据请求ID获取访问记录
+}
+
+// 角色管理
+@server (
+	prefix: /api/v1/admin/role
+	middleware: PolicyCheck
+	group: admin_role
+)
+service user {
+	@handler GetRoleList
+	get /list (GetRoleListReq) returns (RoleListResp)  // 获取角色列表
+
+	@handler GetAllPermissions
+	get /all returns (GetAllPermissionsResp)  // 获取所有权限值
+
+	@handler GetWebsiteList
+	get /website (PageReq) returns (RoleGetWebsiteListResp)
+
+	@handler DBUpdate
+	post /db/update returns (RespEmpty)  // 数据库更新
+
+	@handler ChangeUserRole
+	post /change (ChangeRoleReq) returns (RespEmpty)  // 修改用户角色
+
+	@handler RoleCreate
+	post /create (CreateRoleReq) returns (RespEmpty)  // 更新角色
+
+	@handler RoleUpdate
+	post /update (UpdateRoleReq) returns (RespEmpty)  // 更新角色
+
+	@handler DeleteRole
+	post /delete (DeleteReq) returns (RespEmpty)  // 更新角色
+}
+
+@server (
+	prefix: /api/v1/website/inspector
+	middleware: IPCheck
+	group: verify
+)
+service user {
+	@handler LoginToken
+	post /oauth2 (CheckLoginTokenReq) returns (CheckLoginTokenResp)  // 后端检查登录Token
+
+	@handler PhoneToken
+	post /phone (CheckPhoneTokenReq) returns (CheckPhoneTokenResp)  // 后端检查手机Token
+
+	@handler EmailToken
+	post /email (CheckEmailTokenReq) returns (CheckEmailTokenResp)  // 后端检查邮件Token
+
+	@handler IDCardToken
+	post /idcard (CheckIDCardTokenReq) returns (CheckIDCardTokenResp)  // 后端检查身份证Token
+
+	@handler CompanyToken
+	post /company (CheckCompanyTokenReq) returns (CheckCompanyTokenResp)  // 后端检查营业执照Token
+
+	@handler FaceToken
+	post /face (CheckFaceTokenReq) returns (CheckFaceTokenResp)  // 后端检查扫脸Token
+
+	@handler SecondFA
+	post /secondfa (SecondFACheckReq) returns (CheckSecondFATokenResp)  // 后端检查2FAToken
+}
+
+@server (
+	prefix: /api/v1/website/defray
+	middleware: IPCheck
+	group: defray
+)
+service user {
+	@handler CreateDefray
+	post /create (CreateDefrayReq) returns (CreateDefrayResp)  // 后端创建订单
+
+	@handler CreateBack
+	post /back/create (CreateBackReq) returns (CreateBackResp)  // 后端创建返现
+
+	@handler QueryDefray
+	get /query (QueryDefrayReq) returns (QueryDefrayResp)  // 后端查询订单
+
+	@handler ReturnDefray
+	post /return (ReturnDefrayReq) returns (RespEmpty)  // 后端创建订单
+}
+
+@server (
+	prefix: /api/v1/website/msg
+	middleware: IPCheck
+	group: msg
+)
+service user {
+	@handler SendSMS
+	post /sms (SendSMSReq) returns (SendMsgResp)  // 后端发送短信
+
+	@handler SendEmail
+	post /email (SendEmailReq) returns (SendMsgResp)  // 后端发送邮件
+
+	@handler SendMsg
+	post /msg (SendMsgReq) returns (SendMsgResp)  // 后端发送站内信
+
+	@handler SendWXRobot
+	post /wxrobot (SendWXRobotReq) returns (SendMsgResp)  // 后端发送微信推送
+
+	@handler SendFuwuhao
+	post /fuwuhao (SendFuwuhaoReq) returns (SendMsgResp)  // 后端发送微信推送
+
+	@handler SendAudit
+	post /audit (SendAuditReq) returns (SendMsgResp)  // 后端发送审计内容
+
+	@handler SendWorkOrder
+	post /order (SendWorkOrder) returns (SendMsgResp)  // 后端发送审计内容
+}
+
+@server(
+	prefix: /api/v1/website/ws
+	middleware: WebSocket, IPCheck  // 此处使用IPBusyCheck, 不需要WebsiteAllow，因为没有鉴权，而且ws是另外处理的跨域
+	group: ws
+)
+service user {
+	@handler WSGetInfo
+	get / // 获取用户信息
+}
+
+@server (
+	prefix: /api/v1/pay
+	//	middleware:
+	group: pay
+)
+service user {
+	@handler AlipayNoti
+	post /alipay/noti  // 支付宝通知
+
+	@handler AlipayWangguanNoti
+	post /alipay/wangguan/noti  // 支付宝应用通知
+
+	@handler WechatPayNoti
+	post /wechatpay/noti  // 微信通知
+}
+
+@server (
+	prefix: /api/v1/fuwuhao
+	//	middleware:
+	group: fuwuhao
+)
+service user {
+	@handler Check
+	get /noti  // 服务号通知（验证）
+
+	@handler Noti
+	post /noti  // 服务号通知
+}
+
+@server(
+	prefix: /api/v1/peers/ws
+	middleware: WebSocket  // 此处使用IPBusyCheck, 不需要WebsiteAllow，因为没有鉴权，而且ws是另外处理的跨域
+	group: peers
+)
+service user {
+	@handler WSGetInfo
+	get / // 获取用户信息
+}
